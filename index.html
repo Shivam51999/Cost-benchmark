@@ -54,10 +54,11 @@ details.c summary{cursor:pointer;font:600 15px Fraunces,serif}
 <header><div><h1>Mangalam Contract Rate Intelligence</h1><p>Benchmark rates, check quotes, search any activity, project or contractor, and ask questions of your own data.</p></div><span id="st" class="pill">Starting…</span></header>
 <nav id="nav"><button class="on" data-t="ov">Overview</button><button data-t="ai">Ask AI</button><button data-t="ex">Search and sort</button><button data-t="qc">Quote checker</button><button data-t="es">Cost estimator</button><button data-t="rg">Contractors</button><button data-t="fb">Vendor feedback</button><button data-t="dt">Data and setup</button></nav>
 <main>
+<div id="warn" class="note" role="alert" style="display:none;margin:0 0 12px;border-left-color:var(--bad);color:var(--ink)"></div>
 <section id="ov" class="on"></section>
 
 <section id="ai"><div class="c chat"><div id="msgs" aria-live="polite"></div><div class="chips" id="sug"></div><div class="row"><textarea id="cin" rows="2" placeholder="Ask about rates, contractors, projects or a quote. Example: Is ₹235 per sft fair for RCC building work?" aria-label="Your question"></textarea><button class="b" id="csend">Ask</button></div></div>
-<div class="note">Answers come only from the data in your Google Sheet (rate master, contractor register and vendor feedback). The assistant shows which items it used under each answer. Check important numbers in the Search and sort tab.</div></section>
+<div class="note" id="ainote"></div></section>
 
 <section id="ex"><div class="row"><input id="q" placeholder="Search any activity, project or contractor (e.g. plaster, Melizma, Shree)" aria-label="Search"><select id="cat" aria-label="Trade"></select><select id="srt" aria-label="Sort by"></select></div><div class="chips" id="modes"></div><div class="g two"><div class="c tw" style="max-height:540px;overflow:auto"><table id="tb"></table></div><div class="c" id="det"></div></div></section>
 
@@ -97,7 +98,7 @@ details.c summary{cursor:pointer;font:600 15px Fraunces,serif}
 <script>
 const CONFIG={
   API_URL:"https://script.google.com/macros/s/AKfycbzpou8yfOfxVxTFTKQp-bHKe9buUlI85Zd-F8rljtBvBYlfx78p3voFqO5R4seu3PrDfQ/exec",            // paste your Apps Script web app /exec URL here to switch from demo data to the Google Sheet
-  CHAT_URL:"/api/chat"   // the Vercel function that talks to Claude
+  CHAT_URL:""            // leave blank: answers are worked out from the Sheet data, no AI service. Set to "/api/chat" to add Claude for open questions.
 };
 const RAW=[
 ["RCC","RCC work, building","₹/sft BUA","190,240x2,196x2,235,210x4,215x7,235,195x4,200,192.5x9,210"],
@@ -160,7 +161,7 @@ function params(rows,dir){const M={};rows.forEach(r=>Object.entries(r.scores||{}
 const byDate=(a,b)=>(a.date||"")<(b.date||"")?-1:(a.date||"")>(b.date||"")?1:0;
 
 /* ---------- state ---------- */
-let LIVE=false,CODE="",MODE="demo",ST={items:[],rates:[],projects:[],contractors:[],feedback:[],aliases:[],meta:{}},D=[],DI={},cats=[],PE=[],AL={};
+let LIVE=false,CODE="",MODE="demo",WARN="",ST={items:[],rates:[],projects:[],contractors:[],feedback:[],aliases:[],meta:{}},D=[],DI={},cats=[],PE=[],AL={};
 function legacyReg(){const o=LS.get("mlreg",[]).map(x=>({id:"L"+x.n,n:x.n,i:typeof x.i==="number"?pad(x.i):x.i,r:+x.r,s:x.s,p:x.p,t:x.t,d:x.d,l:x.l,x:x.x,a:""}));return o.concat(LS.get("mlreg2",[]))}
 function legacyFb(){const o=LS.get("mlrate",[]).map((x,i)=>{const L=x.t==="m"?MC:CF,sc={};Object.entries(x.sc||{}).forEach(([k,v])=>{const h=L.find(a=>a[0]===k);if(h)sc[h[1]]=+v});return{id:"L"+i,date:x.d,vendor:x.n,site:x.s,by:x.by,dir:x.t==="m"?"ours":"theirs",src:"local",scores:sc,again:x.again||"",comment:x.cm||""}});return o.concat(LS.get("mlfb2",[]))}
 function seedState(){const items=[],rates=[];RAW.forEach(([cat,name,unit,s],i)=>{const id=pad(i);items.push({id,cat,name,unit,f:F[i][0],on:F[i][1]});let q=0;s.split(",").forEach(t=>{const[m,n]=t.split("x");for(let k=0;k<(n?+n:1);k++)rates.push({i:id,p:"",b:"",c:"",r:+m,d:"",s:++q,x:""})})});
@@ -318,7 +319,7 @@ function rt(){const q=$("#tq").value.toLowerCase(),af=PE.flatMap(p=>p.theirs),al
 
 /* ---------- data and setup ---------- */
 function dt(){const m=ST.meta||{};
- $("#dst").innerHTML=MODE==="live"?`<p><span class="pill good">Live</span> Reading and writing the Google Sheet.</p><p class="m">${ST.items.length} activities · ${ST.rates.length} rate entries · ${ST.contractors.length} contractor quotes · ${ST.feedback.length} feedback records</p>`:MODE==="error"?`<p><span class="pill bad">Not reachable</span> The Google Sheet did not respond. Showing built-in demo data.</p><p class="m">Check the web app URL and that access is set to Anyone.</p>`:`<p><span class="pill warn">Demo data</span> Not connected to a Google Sheet. Changes are saved only in this browser.</p><p class="m">Paste the Apps Script web app URL into CONFIG.API_URL at the top of this file to go live.</p>`;
+ $("#dst").innerHTML=MODE==="empty"?`<p><span class="pill bad">Sheet is empty</span> Connected${m.sheet?" to “"+esc(m.sheet)+"”":""}, but there are no activities or rates in it yet.</p><p class="m">Import Mangalam_Rate_DB_Seed.xlsx (Replace spreadsheet), then press Reload.</p>`:MODE==="live"?`<p><span class="pill good">Live</span> Reading and writing the Google Sheet${m.sheet?" “"+esc(m.sheet)+"”":""}.</p><p class="m">${ST.items.length} activities · ${ST.rates.length} rate entries · ${ST.contractors.length} contractor quotes · ${ST.feedback.length} feedback records</p>`:MODE==="error"?`<p><span class="pill bad">Not reachable</span> The Google Sheet did not respond. Showing built-in demo data.</p><p class="m">Check the web app URL and that access is set to Anyone.</p>`:`<p><span class="pill warn">Demo data</span> Not connected to a Google Sheet. Changes are saved only in this browser.</p><p class="m">Paste the Apps Script web app URL into CONFIG.API_URL at the top of this file to go live.</p>`;
  opts($("#xi"),true);$("#xnew").style.display=$("#xi").value==="__new"?"flex":"none";if(!$("#xd").value)$("#xd").value=today();
  $("#dnote").innerHTML=MODE==="live"?"Tip: fill the Project and Contractor columns on the Rates tab of the sheet. Search, project views and contractor price checks improve as they fill in.":"Setup steps: import Mangalam_Rate_DB_Seed.xlsx into Google Sheets, paste Code.gs into Apps Script, deploy it as a web app, add chat.js as /api/chat on Vercel, then set CONFIG.API_URL above."}
 $("#xi").onchange=dt;
@@ -332,12 +333,16 @@ $("#xs").onclick=async()=>{const i=$("#xi").value,nw=i==="__new",r=parseFloat($(
 function jsonp(action,o={}){return new Promise((res,rej)=>{const cb="mlcb"+Date.now()+Math.floor(Math.random()*1e6),s=document.createElement("script"),q=new URLSearchParams({action,callback:cb,code:CODE});if(o.p)q.set("p",JSON.stringify(o.p));
  const done=()=>{clearTimeout(t);delete window[cb];s.remove()},t=setTimeout(()=>{done();rej(new Error("The Google Sheet took too long to respond"))},60000);
  window[cb]=d=>{done();d&&d.ok?res(d):rej(new Error(d&&d.error||"Request failed"))};s.onerror=()=>{done();rej(new Error("Could not reach the Google Sheet backend"))};s.src=CONFIG.API_URL+"?"+q;document.head.appendChild(s)})}
-function status(){const s=$("#st");s.textContent=MODE==="live"?"Live from Google Sheet":MODE==="error"?"Sheet not reachable: demo data":"Demo data, not connected";s.className="pill"}
-function renderAll(){derive();status();opts($("#qi"));opts($("#ri"));$("#cat").innerHTML='<option value="">All trades</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join("");ov();ex();qc();es();rg();rt();dt()}
-async function load(){try{applyBoot(await jsonp("bootstrap"));MODE="live";LIVE=true;renderAll();return true}catch(e){if(/access code/i.test(e.message)){gate("That code was not accepted. Try again.");return false}toast(e.message,"bad");MODE="error";LIVE=false;seedState();renderAll();return true}}
-async function commit(act,p,demo,okMsg){try{if(LIVE){await jsonp(act,{p});await load()}else{demo();seedState();renderAll()}toast(okMsg)}catch(e){toast(e.message,"bad")}}
+function status(){const s=$("#st");s.textContent=MODE==="live"?"Live from Google Sheet":MODE==="empty"?"Sheet is empty: showing built-in rates":MODE==="error"?"Sheet not reachable: demo data":"Demo data, not connected";s.className="pill"}
+function renderAll(){derive();status();const w=$("#warn");w.style.display=WARN?"block":"none";w.textContent=WARN;opts($("#qi"));opts($("#ri"));$("#cat").innerHTML='<option value="">All trades</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join("");ov();ex();qc();es();rg();rt();dt()}
+async function load(){try{applyBoot(await jsonp("bootstrap"));const m=ST.meta||{},c=m.counts||{items:ST.items.length,rates:ST.rates.length};
+ if(!ST.items.length||!ST.rates.length){const k=ST;seedState();ST.contractors=k.contractors;ST.feedback=k.feedback;ST.projects=k.projects;ST.aliases=k.aliases;ST.meta=k.meta;MODE="empty";LIVE=true;
+  WARN=`Connected to the Google Sheet${m.sheet?" “"+m.sheet+"”":""}, but its Items tab has ${c.items} rows and its Rates tab has ${c.rates} rows. Showing the built-in rate master for now, and saving is switched off. Fix: open the Sheet whose ID is in SHEET_ID in Code.gs, import Mangalam_Rate_DB_Seed.xlsx with “Replace spreadsheet”, then press Reload on the Data and setup tab.`}
+ else{MODE="live";LIVE=true;WARN=""}renderAll();return true}
+ catch(e){if(/access code/i.test(e.message)){gate("That code was not accepted. Try again.");return false}toast(e.message,"bad");MODE="error";LIVE=false;WARN="Could not read the Google Sheet: "+e.message+". Showing built-in demo data. Check that the web app is deployed with access set to Anyone and that API_URL ends in /exec.";seedState();renderAll();return true}}
+async function commit(act,p,demo,okMsg){try{if(MODE==="empty")throw new Error("Import the seed workbook into the Sheet first, then press Reload (Data and setup tab)");if(LIVE){await jsonp(act,{p});await load()}else{demo();seedState();renderAll()}toast(okMsg)}catch(e){toast(e.message,"bad")}}
 async function syncNow(){if(!LIVE){toast("Connect the Google Sheet first (see Data and setup).","bad");return}$$(".syncbtn").forEach(b=>b.disabled=true);try{const r=await jsonp("syncFeedback");await load();toast(`Feedback synced: ${r.added} new of ${r.scanned} reviews`)}catch(e){toast(e.message,"bad")}$$(".syncbtn").forEach(b=>b.disabled=false)}
-$$(".syncbtn").forEach(b=>b.onclick=syncNow);$("#reload").onclick=async()=>{if(!LIVE){toast("Not connected to a Google Sheet.","bad");return}await load();toast("Reloaded")};
+$$(".syncbtn").forEach(b=>b.onclick=syncNow);$("#reload").onclick=async()=>{if(!LIVE&&MODE!=="empty"){toast("Not connected to a Google Sheet.","bad");return}await load();toast("Reloaded")};
 function gate(m){$("#ge").textContent=m||"";$("#gate").style.display="flex";$("#gc").focus()}
 $("#gb").onclick=async()=>{CODE=$("#gc").value.trim();if(!CODE)return;if(await load()){try{sessionStorage.setItem("mlcode",CODE)}catch(e){}$("#gate").style.display="none"}};
 $("#gc").onkeydown=e=>{if(e.key==="Enter")$("#gb").click()};
@@ -370,23 +375,68 @@ function buildContext(text){const R=retrieve(text),L=[],PR=projectRows();
  if(det.length)L.push("DETAIL FOR THIS QUESTION:"),L.push(...det);
  return{text:L.join("\n").slice(0,58000),used:[...R.items.map(d=>d.name),...R.people.map(p=>p.name),...R.projects.map(p=>p.name)]}}
 function md(t){let h="",ul=false;const fm=s=>s.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");esc(t).split("\n").forEach(l=>{const m=l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);if(m){if(!ul){h+="<ul>";ul=true}h+="<li>"+fm(m[1])+"</li>"}else{if(ul){h+="</ul>";ul=false}if(l.trim())h+="<p>"+fm(l)+"</p>"}});return h+(ul?"</ul>":"")}
-function localAnswer(text){const R=retrieve(text);let h="";
- if(R.items.length)h+=`<div class="tw"><table class="l"><tr><th>Item</th><th>Unit</th><th>Low</th><th>Median</th><th>High</th><th>Latest</th></tr>${R.items.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.unit)}</td><td>${f(d.min)}</td><td>${f(d.med)}</td><td>${f(d.max)}</td><td>${f(d.last)}</td></tr>`).join("")}</table></div>`;
- R.people.forEach(P=>{h+=`<p><b>${esc(P.name)}</b>${P.g?` · grade ${P.g[0]} (${P.g[1]}), score ${P.ms.toFixed(1)}`:" · no reviews yet"}${P.dv!=null?` · price ${pct(P.dv)} vs median`:""}</p>`});
- R.projects.forEach(P=>{h+=`<p><b>${esc(P.name)}</b> · ${P.items} activities priced, ${P.n} entries</p>`});
- return h||"<p>I could not find a matching activity, project or contractor. Try the exact item name, for example “RCC work, building”.</p>"}
+function parseNums(t){const res=[],re=/(?<![a-z0-9.])(?:₹|rs\.?\s*)?(\d[\d,]*(?:\.\d+)?)\s*(lakhs?|lacs?|crores?|cr|k)?(?![a-z0-9])/gi;let m;
+ while((m=re.exec(t))){let v=parseFloat(m[1].replace(/,/g,""));if(!isFinite(v))continue;const u=(m[2]||"").toLowerCase();if(u.startsWith("lakh")||u.startsWith("lac"))v*=1e5;else if(u.startsWith("crore")||u==="cr")v*=1e7;else if(u==="k")v*=1e3;
+  const after=t.slice(re.lastIndex,re.lastIndex+14);res.push({v,area:(!!u&&u!=="k")||/^\s*(sft|sqft|sq\.?\s?ft|square|bua|built)/i.test(after)})}return res}
+const TB=(h,rows)=>`<div class="tw"><table class="l"><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table></div>`;
+const gp=P=>P&&P.g?`<span class="pill ${P.g[2]}">${P.g[0]} · ${P.ms.toFixed(1)}</span>`:"–";
+const helpHtml=()=>`<p>I work out answers from your Sheet data. Try:</p><ul><li>What is the usual rate for plaster work?</li><li>Is ₹235 per sft fair for RCC work in the building?</li><li>Who is cheapest for tiling?</li><li>How is [contractor name] doing?</li><li>Rates at [project name]</li><li>Which contractors are on the watchlist? / Who are the top vendors?</li><li>Which contractors have no review in 90 days?</li><li>Estimate cost for 5 lakh sft (add a trade name for one trade)</li><li>Widest rate gaps / rates likely to rise / items to verify</li></ul>`;
+function estHtml(A,cs,used){const rows=D.filter(d=>d.n&&d.on&&(!cs.length||cs.includes(d.cat))).map(d=>{const q=A*d.f;return{d,q,m:q*d.med,l:q*d.p25,h:q*d.p90}});
+ if(!rows.length)return"<p>I found no estimate items for that trade. Items count in the estimate when they are ticked in the Cost estimator.</p>";
+ const S=k=>rows.reduce((x,r)=>x+r[k],0),top=rows.slice().sort((a,b)=>b.m-a.m).slice(0,6);cs.forEach(c=>used.push(c));
+ return`<p>For <b>${A.toLocaleString("en-IN")} sft</b> of built-up area${cs.length?`, ${esc(cs.join(" and "))} only`:""}, the benchmark is <b>${cr(S("m"))}</b> (${f(S("m")/A)} per sft).</p><ul><li>Lean to high range: ${cr(S("l"))} to ${cr(S("h"))}</li><li>With 5% escalation: ${cr(S("m")*1.05)}</li></ul><p class="m">Biggest items:</p>`+TB(["Item","Quantity","Median rate","Cost"],top.map(r=>[esc(r.d.name),r.q.toLocaleString("en-IN",{maximumFractionDigits:0})+" "+esc(r.d.unit.replace("₹/","")),f(r.d.med),cr(r.m)]))+`<p class="m">Quantities use the typical ratios in the Cost estimator tab, where you can edit them.</p>`}
+let LASTR=null;
+function engine(text){const t=text.toLowerCase(),has=re=>re.test(t),N=parseNums(text),used=[],out=h=>({html:h,used});
+ const R0=retrieve(text),e0=!R0.items.length&&!R0.people.length&&!R0.projects.length;let R=R0;
+ if(e0&&LASTR&&text.split(/\s+/).length<=9&&/^(and|also|then|what about|how about|what'?s|whats|its|it'?s|that|those|same)\b|\b(it|its|that one|this one|same)\b/.test(t))R=LASTR;else if(!e0)LASTR=R0;
+ const rate=N.find(x=>!x.area),area=N.find(x=>x.area);
+ if(!t.trim()||has(/^(help|hi\b|hello|what can you|how do i)/))return out(helpHtml());
+ if(has(/estimat|budget|total cost|cost (of|for) (a |the )?(new |whole |entire )?(project|building|tower|construction)/)){
+  if(!area)return out("<p>Tell me the built-up area, for example “estimate cost for 5 lakh sft”.</p>");
+  return out(estHtml(area.v,cats.filter(c=>toks(c).some(w=>toks(text).includes(w))),used))}
+ if(rate&&R.items.length&&R.items[0].n){const d=R.items[0],r=rate.v,[vt,cl,adv]=verdict(d,r),rank=d.v.filter(x=>x<=r).length/d.n,sv=r-d.med,P=R.people[0];used.push(d.name);
+  return out(`<p><b>${vt}.</b> ${f(r)} for ${esc(d.name)} (${esc(d.unit)}). ${esc(adv)}</p><ul><li>Median ${f(d.med)}, usual band ${f(d.p25)} to ${f(d.p75)}, ceiling ${f(d.p90)}</li><li>Better than ${(100-rank*100).toFixed(0)}% of rates Mangalam has paid</li><li>${sv>0?`Negotiating to the median saves ${f(sv)} per ${esc(d.unit.replace("₹/",""))}`:`${f(-sv)} under the median`}</li></ul>${P&&P.g?`<p>${esc(P.name)}: grade ${P.g[0]} (${P.g[1]}). Award view: <b>${award(P.g,cl)}</b></p>`:""}${R.items.length>1?`<p class="m">I used “${esc(d.name)}”. Other close matches: ${esc(R.items.slice(1,4).map(x=>x.name).join("; "))}. Name the item more exactly to switch.</p>`:""}`)}
+ if(R.items.length&&has(/cheap|lowest|least|highest|costliest|expensive|\bwho\b|contractor|vendor|\bpaid\b/)){
+  const M={};R.items.forEach(d=>{if(!d.med)return;d.e.filter(x=>x.c).forEach(x=>{const P=findP(x.c),k=P?P.key:nk(x.c);(M[k]=M[k]||{name:P?P.name:x.c,P,v:[],dv:[]}).v.push(x.r);M[k].dv.push(x.r/d.med-1)})});
+  const L=Object.values(M).map(o=>({...o,a:avg(o.v),m:avg(o.dv)})),one=R.items.length===1;R.items.slice(0,3).forEach(d=>used.push(d.name));
+  if(L.length){const asc=!has(/highest|costliest|expensive/);L.sort((a,b)=>asc?a.m-b.m:b.m-a.m);
+   return out(`<p>${asc?"Lowest":"Highest"} prices for <b>${esc(one?R.items[0].name:R.items.slice(0,3).map(d=>d.name).join(", ")+(R.items.length>3?" and more":""))}</b>, compared with each item’s median:</p>`+TB(["Contractor",...(one?["Avg rate"]:[]),"Entries","vs median","Grade"],L.slice(0,8).map(o=>[esc(o.name),...(one?[f(o.a)]:[]),o.v.length,dvh(o.m),gp(o.P)])))}
+  if(has(/cheap|\bwho\b|contractor|vendor/))return out(`<p>Rates for ${esc(R.items[0].name)} have no contractor names yet, so I can’t say who. Fill the Contractor column on the Rates tab of the Sheet. Meanwhile: low ${f(R.items[0].min)}, median ${f(R.items[0].med)}, high ${f(R.items[0].max)}.</p>`)}
+ if(has(/no review|not (been )?reviewed|without (a )?review|missing feedback|pending feedback|overdue/)){const L=PE.filter(p=>(p.reg.length||p.ents.length)&&!p.ours.some(r=>daysAgo(r.date)<=90));
+  return out(L.length?`<p>${L.length} contractors have a contract but no review in the last 90 days:</p>`+TB(["Contractor","Last review"],L.slice(0,15).map(p=>[esc(p.name),p.last?fd(p.last):"never"])):"<p>Every contractor with a contract has a review in the last 90 days.</p>")}
+ if(has(/vendor|contractor|watchlist|leaderboard|rank\b|preferred|rated/)&&!R.people.length&&!R.items.length){const rated=PE.filter(p=>p.ms!=null);
+  if(!rated.length)return out("<p>No vendor reviews are in the data yet. Press “Sync vendor feedback now” on the Vendor feedback tab.</p>");
+  const watch=has(/watchlist|restrict|worst|weak|poor|risk|bad|lowest|below|attention|unhappy/),L=watch?rated.filter(p=>p.g[0]>="C").sort((a,b)=>a.ms-b.ms):rated.slice().sort((a,b)=>b.ms-a.ms).slice(0,8);
+  return out(L.length?`<p>${watch?"Vendors on the watchlist or restricted (grade C or D):":"Top-rated vendors:"}</p>`+TB(["Contractor","Grade","Reviews","Price vs median"],L.map(p=>[esc(p.name),gp(p),p.ours.length,dvh(p.dv)])):"<p>No vendor is below grade B right now.</p>")}
+ if(!R.items.length&&has(/gap|spread|negotiat|room to|variation|widest/)){const L=D.filter(d=>d.n>1).sort((a,b)=>b.spread-a.spread).slice(0,8);return out("<p>Widest gap between the lowest and highest rate paid (most room to negotiate):</p>"+TB(["Item","Low","High","Gap"],L.map(d=>[esc(d.name),f(d.min),f(d.max),(d.spread*100).toFixed(0)+"%"])))}
+ if(!R.items.length&&has(/\brise|rising|increase|going up|go up|forecast|trend/)){const L=D.filter(d=>d.n>5).sort((a,b)=>b.fc/b.last-a.fc/a.last).slice(0,8);return out("<p>Rates the trend expects to rise most:</p>"+TB(["Item","Latest","Forecast","Change"],L.map(d=>[esc(d.name),f(d.last),f(d.fc),pct(d.fc/d.last-1)]))+'<p class="m">Forecasts extend the trend and are directional only.</p>')}
+ if(!R.items.length&&has(/outlier|verify|data.?entry|wrong|error/)){const L=D.filter(d=>d.out);return out(L.length?"<p>Items with entries far from the median (check scope, unit or typing):</p>"+TB(["Item","Median","Min","Max"],L.map(d=>[esc(d.name),f(d.med),f(d.min),f(d.max)])):"<p>No outlier entries found.</p>")}
+ if(!R.items.length&&has(/overview|summary|how many|count/)){return out(`<p>${D.filter(d=>d.n).length} rate items in ${cats.length} trades, ${ST.rates.length} rate entries, ${PE.length} contractors, ${ST.feedback.length} feedback records.</p>`)}
+ if(R.people.length){const P=R.people[0],dv=priceCls(P.dv),I=insights(P),po=params(P.ours,"ours");used.push(P.name);
+  return out(`<p><b>${esc(P.name)}</b> ${P.g?`${gp(P)} ${P.g[1]}`:"has no performance reviews yet"}.</p><ul>${P.ms!=null?`<li>Our score ${P.ms.toFixed(1)} of 5 from ${P.ours.length} reviews${P.last?`, last ${fd(P.last)}`:""}</li>`:""}${P.fs!=null?`<li>Their score of us ${P.fs.toFixed(1)} of 5</li>`:""}${dv?`<li>Price is ${dv[0]} (${pct(P.dv)} vs median across ${P.items} activities)</li>`:""}${P.sites.size?`<li>Sites: ${esc([...P.sites].join(", "))}</li>`:""}</ul>${po.length?TB(["Area","Score"],po.map(([l,s])=>[esc(l),s.toFixed(1)])):""}${I.map(i=>`<p>${esc(i)}</p>`).join("")}${P.g&&dv?`<p>Award view: <b>${award(P.g,dv[1])}</b></p>`:""}${P.reg.length?`<p class="m">${P.reg.length} quote(s) on file. Open the Contractors tab for terms.</p>`:""}`)}
+ if(R.projects.length){const P=R.projects[0],rows=P.ents.filter(x=>x.d.med).slice().sort((a,b)=>b.en.r/b.d.med-a.en.r/a.d.med);used.push(P.name);
+  return out(`<p><b>${esc(P.name)}</b>: ${P.items} activities priced, average ${dvh(P.dv)} vs median.</p>`+(rows.length?TB(["Activity","Contractor","Rate","vs median"],rows.slice(0,8).map(x=>[esc(x.d.name),esc(x.en.c||"–"),f(x.en.r),dvh(x.en.r/x.d.med-1)]))+'<p class="m">The 8 furthest above the median.</p>':""))}
+ if(R.items.length){const I=R.items;I.slice(0,6).forEach(d=>used.push(d.name));
+  if(I.length>=3)return out(`<p>${I.length} items match. Name one for the full picture:</p>`+TB(["Item","Unit","Low","Median","High","Latest"],I.map(d=>[esc(d.name),esc(d.unit),d.n?f(d.min):"–",d.n?f(d.med):"–",d.n?f(d.max):"–",d.n?f(d.last):"–"])));
+  const d=I[0];if(!d.n)return out(`<p>${esc(d.name)} has no rate entries yet.</p>`);
+  return out(`<p><b>${esc(d.name)}</b> (${esc(d.unit)}): median ${f(d.med)}, usual band ${f(d.p25)} to ${f(d.p75)}.</p><ul><li>Lowest ${f(d.min)}, highest ${f(d.max)}, latest ${f(d.last)}</li><li>Negotiate toward ${f(d.med)}; walk away above ${f(d.p90)}</li><li>Trend forecast ${f(d.fc)} (${pct(d.fc/d.last-1)}), directional only</li><li>${d.n} entries</li></ul>`+(I.length>1?`<p class="m">Also close: ${esc(I[1].name)} (median ${f(I[1].med)}).</p>`:""))}
+ return out("<p>I could not match that to an activity, contractor or project in your data.</p>"+helpHtml())}
 let H=[],asking=false;
 function addMsg(cls,html){const m=document.createElement("div");m.className="msg "+cls;m.innerHTML=html;$("#msgs").appendChild(m);$("#msgs").scrollTop=1e9;return m}
-async function ask(text){text=String(text||"").trim().slice(0,800);if(!text||asking)return;asking=true;$("#csend").disabled=true;$("#cin").value="";addMsg("u",esc(text));const wait=addMsg("a","<p class='m'>Looking through your data…</p>");
+const srcLine=u=>u.length?`<div class="src">Used: ${esc(u.join(", "))}</div>`:"";
+async function ask(text){text=String(text||"").trim().slice(0,800);if(!text||asking)return;asking=true;$("#csend").disabled=true;$("#cin").value="";addMsg("u",esc(text));
+ if(!CONFIG.CHAT_URL){const L=engine(text);addMsg("a",L.html+srcLine(L.used));asking=false;$("#csend").disabled=false;return}
+ const wait=addMsg("a","<p class='m'>Looking through your data…</p>");
  H.push({role:"user",content:text});const recent=H.filter(x=>x.role==="user").slice(-2).map(x=>x.content).join(" "),ctx=buildContext(recent);
  try{const r=await fetch(CONFIG.CHAT_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:CODE,messages:H.slice(-6),context:ctx.text})});let j={};try{j=await r.json()}catch(e){}
   if(!r.ok||!j.ok)throw new Error(j.error||"The AI service is not connected");
-  H.push({role:"assistant",content:j.answer});wait.innerHTML=md(j.answer)+(ctx.used.length?`<div class="src">Used: ${esc(ctx.used.join(", "))}</div>`:"")}
- catch(e){H.pop();wait.innerHTML=`<p class="m">${esc(e.message)}. Here is what the data shows for your question:</p>`+localAnswer(text)}
+  H.push({role:"assistant",content:j.answer});wait.innerHTML=md(j.answer)+srcLine(ctx.used)}
+ catch(e){H.pop();const L=engine(text);wait.innerHTML=`<p class="m">${esc(e.message)}. Answered from your data instead:</p>`+L.html+srcLine(L.used)}
  asking=false;$("#csend").disabled=false;$("#msgs").scrollTop=1e9}
 $("#csend").onclick=()=>ask($("#cin").value);$("#cin").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask($("#cin").value)}};
-function chat0(){addMsg("a","<p>Ask me about rates, contractors, projects or quotes. I answer only from your Google Sheet data.</p>");
- const S=["What is the usual rate for RCC building work?","Which activities have the widest rate gaps?","Is ₹235 per sft fair for RCC work in the building?","Which contractors are on the watchlist?","Estimate waterproofing cost for 5 lakh sft built-up area"];
+function chat0(){addMsg("a",`<p>Ask me about rates, contractors, projects or quotes. ${CONFIG.CHAT_URL?"Answers come from your Google Sheet data.":"I work out the answers directly from your Google Sheet data, no AI service involved."}</p>`);
+ $("#ainote").textContent=CONFIG.CHAT_URL?"Answers come only from the data in your Google Sheet. If the AI service is unavailable, the tool answers from the data directly. Check important numbers in the Search and sort tab.":"Answers are calculated from the Sheet data using fixed question patterns, so the numbers match the Search and sort and Quote checker tabs exactly. Ask “what can you answer?” to see the patterns.";
+ const S=["What is the usual rate for plaster work?","Is ₹235 per sft fair for RCC work in the building?","Who is cheapest for tiling?","Which contractors are on the watchlist?","Estimate cost for 5 lakh sft","What can you answer?"];
  $("#sug").innerHTML=S.map(s=>`<button class="chip">${esc(s)}</button>`).join("");$$("#sug .chip").forEach(b=>b.onclick=()=>ask(b.textContent))}
 
 /* ---------- start ---------- */
