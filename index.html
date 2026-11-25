@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mangalam Contract Rate Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F4EE;--card:#fff;--ink:#0B1F3A;--mut:#5b6678;--navy:#0B1F3A;--gold:#B8901F;--line:#e2ddd0;--good:#1f7a4d;--warn:#b7791f;--bad:#b3261e;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1424;--card:#111f36;--ink:#eef0f4;--mut:#9aa7bd;--navy:#07101f;--gold:#E0B84A;--line:#243453;--good:#4fcf94;--warn:#e8b04a;--bad:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a1424;--card:#111f36;--ink:#eef0f4;--mut:#9aa7bd;--navy:#07101f;--gold:#E0B84A;--line:#243453;--good:#4fcf94;--warn:#e8b04a;--bad:#ff8a80;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+header{background:#0B1F3A;color:#fff;padding:18px 20px;border-bottom:3px solid #C9A227;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+header h1{font:700 22px Fraunces,Georgia,serif;margin:0}header p{margin:2px 0 0;color:#cdd5e3;font-size:13px}
+#st{font-size:12px;color:#fff;border-color:#C9A227}
+nav{display:flex;gap:4px;overflow-x:auto;padding:10px 16px 0;border-bottom:1px solid var(--line);background:var(--card)}
+nav button{border:0;background:none;color:var(--mut);padding:10px 14px;font:500 14px Inter;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:var(--ink);border-color:var(--gold);font-weight:600}
+main{max-width:1100px;margin:0 auto;padding:16px}section{display:none}section.on{display:block}
+.g{display:grid;gap:12px}.k{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.two{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.c{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;min-width:0}
+.c h3{margin:0 0 8px;font:600 16px Fraunces,serif}.big{font:700 26px Fraunces,serif;color:var(--gold)}.m{color:var(--mut);font-size:12px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.row>*{flex:1 1 160px}
+button.b{background:var(--navy);color:#fff;border:0;border-radius:6px;padding:9px 14px;font-weight:600;cursor:pointer;border-bottom:2px solid #C9A227}
+button.b:disabled{opacity:.6;cursor:wait}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--card);cursor:pointer}
+table.l th:nth-child(2),table.l td:nth-child(2){text-align:left}
+tr.r:hover{background:var(--bg);cursor:pointer}tr.r.sel{background:var(--bg)}
+.bar{height:8px;background:var(--gold);border-radius:4px}.lr{display:grid;grid-template-columns:150px 1fr 56px;gap:8px;align-items:center;margin:5px 0;font-size:12px}
+.lr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;border:1px solid currentColor;display:inline-block}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.note{border-left:3px solid var(--gold);padding:8px 12px;background:var(--card);margin:12px 0;font-size:13px;color:var(--mut)}
+svg text{fill:var(--mut);font-size:10px}
+.rs{display:grid;grid-template-columns:1fr 130px;gap:6px;align-items:center;margin:4px 0}.rs select{padding:6px}.cd{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}.cd p{margin:4px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:5px 12px;font:500 13px Inter;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--gold)}
+.chat{display:flex;flex-direction:column;height:min(68vh,620px)}
+#msgs{flex:1;overflow-y:auto;padding:2px 2px 8px}
+.msg{max-width:90%;padding:8px 12px;border-radius:10px;margin:6px 0;line-height:1.5;overflow-wrap:anywhere}
+.msg p{margin:4px 0}.msg ul{margin:4px 0;padding-left:18px}
+.msg.u{background:var(--navy);color:#fff;margin-left:auto;border-bottom:2px solid #C9A227}
+.msg.a{background:var(--bg);border:1px solid var(--line)}
+.msg .src{margin-top:6px;font-size:11px;color:var(--mut)}
+.chat .row{margin:8px 0 0;flex-wrap:nowrap}.chat textarea{resize:none;flex:1 1 auto}.chat button{flex:0 0 auto}
+details.c summary{cursor:pointer;font:600 15px Fraunces,serif}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#fff;padding:9px 16px;border-radius:8px;border-bottom:2px solid #C9A227;font-size:13px;z-index:60;display:none;max-width:92vw}
+#toast.bad{background:var(--bad)}
+#gate{position:fixed;inset:0;background:rgba(7,16,31,.88);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+@media (prefers-reduced-motion:no-preference){.msg{animation:in .18s ease-out}@keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style></head><body>
+<header><div><h1>Mangalam Contract Rate Intelligence</h1><p>Benchmark rates, check quotes, search any activity, project or contractor, and ask questions of your own data.</p></div><span id="st" class="pill">Starting…</span></header>
+<nav id="nav"><button class="on" data-t="ov">Overview</button><button data-t="ai">Ask AI</button><button data-t="ex">Search and sort</button><button data-t="qc">Quote checker</button><button data-t="es">Cost estimator</button><button data-t="rg">Contractors</button><button data-t="fb">Vendor feedback</button><button data-t="dt">Data and setup</button></nav>
+<main>
+<section id="ov" class="on"></section>
+
+<section id="ai"><div class="c chat"><div id="msgs" aria-live="polite"></div><div class="chips" id="sug"></div><div class="row"><textarea id="cin" rows="2" placeholder="Ask about rates, contractors, projects or a quote. Example: Is ₹235 per sft fair for RCC building work?" aria-label="Your question"></textarea><button class="b" id="csend">Ask</button></div></div>
+<div class="note">Answers come only from the data in your Google Sheet (rate master, contractor register and vendor feedback). The assistant shows which items it used under each answer. Check important numbers in the Search and sort tab.</div></section>
+
+<section id="ex"><div class="row"><input id="q" placeholder="Search any activity, project or contractor (e.g. plaster, Melizma, Shree)" aria-label="Search"><select id="cat" aria-label="Trade"></select><select id="srt" aria-label="Sort by"></select></div><div class="chips" id="modes"></div><div class="g two"><div class="c tw" style="max-height:540px;overflow:auto"><table id="tb"></table></div><div class="c" id="det"></div></div></section>
+
+<section id="qc"><div class="g two"><div class="c"><h3>Check a contractor’s quote</h3><div class="row"><select id="qi" aria-label="Activity"></select></div><div class="row"><input id="qv" type="number" step="0.01" placeholder="Quoted rate"><input id="qe" type="number" step="0.5" value="0" placeholder="Escalation %"></div><div class="row"><input id="qn" list="cn" placeholder="Contractor name (optional, adds their performance grade)"></div><p class="m">Escalation % lifts the benchmark band for expected cost inflation before comparing.</p></div><div class="c" id="qr"><p class="m">Enter a quote to see where it sits against Mangalam’s own history.</p></div></div></section>
+
+<section id="es"><div class="g two"><div class="c"><h3>Estimate contract value</h3><div class="row"><input id="bua" type="number" value="500000" placeholder="Built-up area (sft)"><input id="ee" type="number" step="0.5" value="5" placeholder="Escalation %"></div><p class="m">Quantities scale with built-up area using typical ratios you can edit. Untick items your project does not use.</p><p><button class="b" id="eres">Reset quantities</button></p><div id="esum"></div></div><div class="c" id="egr"></div></div><div class="c tw" id="er" style="margin-top:12px;max-height:560px;overflow:auto"></div></section>
+
+<section id="rg"><div class="g two"><div class="c"><h3>Add contractor and terms</h3>
+<div class="row"><input id="rn" list="cn" placeholder="Contractor name"><select id="ri" aria-label="Activity"></select></div>
+<div class="row"><input id="rr" type="number" step="0.01" placeholder="Offered rate"><input id="rs" list="pn" placeholder="Site / project"></div>
+<div class="row"><input id="rp" placeholder="Payment terms (e.g. 30 days RA bill)"><input id="rtn" type="number" placeholder="Retention %" value="5"></div>
+<div class="row"><input id="rd" type="number" placeholder="Defect liability (months)" value="12"><input id="rl" placeholder="Delay penalty (e.g. 0.5% per week)"></div>
+<textarea id="rx" rows="3" placeholder="Scope, material supply, safety, insurance, other terms"></textarea><p><button class="b" id="ra">Save contractor</button></p></div>
+<div class="c"><h3>Search contractors</h3><input id="rq" placeholder="Search name, trade, site or terms"><div id="rl2" style="margin-top:10px"></div></div></div>
+<div class="note">Every contractor saved here is benchmarked automatically against Mangalam’s history. Their performance grade comes from the vendor feedback sync.</div></section>
+
+<section id="fb"><div class="g k" id="tk"></div>
+<div class="row" style="margin-top:12px;align-items:center"><span class="m" id="syncinfo" style="flex:2 1 260px"></span><button class="b syncbtn" style="flex:0 0 auto">Sync vendor feedback now</button></div>
+<details class="c"><summary>Add a rating or contractor feedback by hand</summary><div class="g two" style="margin-top:12px"><div><h3>Rate a contractor</h3><p class="m">Given by Mangalam teams. 1 is very poor, 5 is excellent.</p><div class="row"><input id="mn" list="cn" placeholder="Contractor name"><input id="msite" list="pn" placeholder="Site / project"></div><div class="row"><input id="mby" placeholder="Rated by (name, team)"></div><div id="mm"></div><textarea id="mx" rows="2" placeholder="Comments: what went well, what went wrong"></textarea><p><button class="b" id="madd">Save rating</button></p></div><div><h3>Contractor’s feedback on Mangalam</h3><p class="m">Collected from the contractor about our team, payment policy and support.</p><div class="row"><input id="fn" list="cn" placeholder="Contractor name"><input id="fsite" list="pn" placeholder="Site / project"></div><div class="row"><input id="fby" placeholder="Collected by (name, team)"></div><div id="ff"></div><div class="rs"><label for="fy">Would work with us again?</label><select id="fy"><option>Yes</option><option>Maybe</option><option>No</option></select></div><textarea id="fx" rows="2" placeholder="Their words: payment delays, support gaps, suggestions"></textarea><p><button class="b" id="fadd">Save feedback</button></p></div></div></details>
+<datalist id="cn"></datalist><datalist id="pn"></datalist>
+<div class="c" style="margin-top:12px"><h3>Contractor scorecards</h3><input id="tq" placeholder="Search contractor, site or comment"><div id="tl" style="margin-top:10px"></div></div>
+<div class="note">Overall score weights: quality 30%, safety 20%, speed 20%, contract team 15%, approach 15%. Scores from the feedback app are matched to these areas by name; any other question in that app is averaged in as a separate area. Grades: A 4.2 and above (preferred), B 3.5 (approved), C 2.8 (watchlist), D below that (restrict).</div></section>
+
+<section id="dt"><div class="g two"><div class="c"><h3>Connection</h3><div id="dst"></div><p><button class="b syncbtn">Sync vendor feedback now</button> <button class="b" id="reload">Reload from sheet</button></p></div>
+<div class="c"><h3>Add a rate entry</h3><p class="m">Record the rate from a new contract so it joins the benchmark.</p>
+<div class="row"><select id="xi" aria-label="Activity"></select></div>
+<div class="row" id="xnew" style="display:none"><input id="xc" placeholder="Trade (e.g. Tiling)"><input id="xn" placeholder="New activity name"><input id="xu" placeholder="Unit (e.g. ₹/sft)"></div>
+<div class="row"><input id="xp" list="pn" placeholder="Project"><input id="xb" placeholder="Building"><input id="xk" list="cn" placeholder="Contractor"></div>
+<div class="row"><input id="xr" type="number" step="0.01" placeholder="Rate"><input id="xd" type="date" aria-label="Contract date"></div>
+<input id="xx" placeholder="Note (scope, material supply)" style="margin-bottom:10px"><p><button class="b" id="xs">Save rate entry</button></p></div></div>
+<div class="note" id="dnote"></div></section>
+</main>
+
+<div id="gate"><div class="c" style="width:min(360px,100%)"><h3>Team access code</h3><p class="m">Enter the code your admin set for this tool.</p><input id="gc" type="password" autocomplete="off" aria-label="Access code"><p><button class="b" id="gb">Open</button></p><p class="m bad" id="ge"></p></div></div>
+<div id="toast" role="status"></div>
+
+<script>
+const CONFIG={
+  API_URL:"",            // paste your Apps Script web app /exec URL here to switch from demo data to the Google Sheet
+  CHAT_URL:"/api/chat"   // the Vercel function that talks to Claude
+};
+const RAW=[
+["RCC","RCC work, building","₹/sft BUA","190,240x2,196x2,235,210x4,215x7,235,195x4,200,192.5x9,210"],
+["RCC","RCC work, podium","₹/sft BUA","185x2,235,200x4,185x7,235,195x4,200,192.5x9,210"],
+["RCC","Transformer room","₹/sft","277x4,230x7"],["RCC","Club house","₹/sft","230x4,220x7"],
+["RCC","STP tank","₹/ltr","4.25x4,4x7"],["RCC","UGWT tank","₹/ltr","4.25,3.75x11"],
+["RCC","Retaining wall","₹/sft","110x2,125,110x24"],["RCC","Retaining wall raft","₹/sft","85x2,100,80x3,85x7,80x11"],
+["Masonry & plaster","BBM plaster, building","₹/sft BUA","85,80x7,85x7,82,77x4,80,75x9"],
+["Masonry & plaster","Blockwork 4–6 in","₹/sft","22x2,20x5,22x8,20x5,18x9"],
+["Masonry & plaster","Brickwork 4–6 in","₹/sft","24x2,23x5,24x8,22x5,20x9"],
+["Masonry & plaster","Brickwork 8–9 in","₹/sft","26x2,25x5,26x8,24x5,22x9"],
+["Masonry & plaster","Taar plaster","₹/sft","20x20,18x9"],["Masonry & plaster","Neeru / sanla plaster","₹/sft","28x2,22x18,20x9"],
+["Masonry & plaster","Single coat face plaster","₹/sft","27x2,25x18,24x9"],["Masonry & plaster","Double coat face plaster","₹/sft","32x2,28x15,27x5,26x9"],
+["Waterproofing","Dr. Fixit PU-270","₹/sft","80x3,82.5x3,80,82.5x5,80x9"],["Waterproofing","Dr. Fixit Pidifin 2K","₹/sft","26x3,29x8,26x9"],
+["Waterproofing","Dr. Fixit Fastflex","₹/sft","34x3,39x8,34x9"],["Waterproofing","Dr. Fixit Fastflex Ultra","₹/sft","37x3,41x8,37x9"],
+["Waterproofing","Dr. Fixit Damp Guard Classic","₹/sft","26x11,21x9"],["Waterproofing","Dr. Fixit Coal Tar Epoxy","₹/sft","21x11,19x9"],
+["Waterproofing","Basecoat","₹/sft","16x2,26,16x24"],["Waterproofing","Brickbat","₹/sft","26x2,100,26x24"],["Waterproofing","Screed","₹/sft","18x2,16,18x3,16x7,18x13"],
+["Waterproofing","Polysulphide sealant with backer rod","₹/rmt","625x2,180,625x16"],["Waterproofing","Swellable water bar","₹/rmt","380x3,358x10"],
+["Waterproofing","Expansion joint, vertical","₹/rmt","2150x18"],["Waterproofing","Expansion joint, horizontal","₹/rmt","3350x18"],
+["Gypsum","Gypsum wall mounting","₹/sft","26,24x2,26x4,23x4,25,23x9"],["Gypsum","Gypsum false ceiling","₹/sft","75x5,70x4,75,70x9"],
+["Tiling","Tiling, built-up area","₹/sft BUA","60,55x2,61,55x3,67,55x14"],["Tiling","Flooring 600×1200","₹/sft","27x3,26x3,27,26x14"],
+["Tiling","Skirting","₹/rft","22x21"],["Tiling","Umbra patti","₹/rft","90x21"],["Tiling","Kitchen otta","₹/rft","550x21"],["Tiling","Lift lobby cladding","₹/sft","90x21"],
+["Doors","Main door","₹/no","1750x2,2000x8"],["Doors","Toilet door with child lock","₹/no","750x2,800x8"],
+["Aluminium (powder coated)","3T door","₹/sft","360,320x2,380x3"],["Aluminium (powder coated)","3T window, bedroom","₹/sft","330,290x2,330x3"],
+["Aluminium (powder coated)","3T window, kitchen","₹/sft","340,290x2,370x3"],["Aluminium (powder coated)","Toilet louvers","₹/sft","270,210x2,270x3"],
+["Fabrication","Attached terrace railing","₹/sft","108,115x2,105x3"],["Fabrication","Staircase railing","₹/sft","125,95x2,98,95x3"],["Fabrication","Window grill","₹/sft","103,107x2,120x3"],
+["Painting","Flat internal wall + ceiling","₹/sft","8x2,10,9x3"],["Painting","Bathroom + balcony ceiling","₹/sft","16.5x3,11.3x3"],
+["Painting","Elevational faces","₹/sft","15.5x2,15.3x3"],["Painting","Parking beam + ceiling","₹/sft","22.5x3,11.3x3"],["Painting","Texture, parking columns","₹/sft","29x3,30x3"],
+["Fire & shafts","Fire staircase door 1500×2400","₹/no","9200,12800x5"],["Fire & shafts","Fire shaft door","₹/sft","270,280x5"],
+["Services","Plumbing, 2BHK","₹/flat","21000,16500x2,22000,16500x3"],["Services","Plumbing, 3BHK","₹/flat","18500x2,27000,19500x3"],
+["Services","Solar water heater","₹/ltr","91x2,93,94x3"],["Services","STP","₹/KLD","7621.2x3,4666.66x7"],["Services","Garbage chute","₹/floor","19000x2,20000x3"],
+["Services","Deep cleaning","₹/sft","3.5x6,4x3"],["Scaffolding","Double bamboo scaffolding","₹/sft","10x6"],["Scaffolding","MS H-frame scaffolding","₹/sft","12x5"],
+["Facade","ACP cladding, textured","₹/sft","230x2,220,230x3"]];
+const F=[[1,1],[.15,1],[.002,1],[.02,1],[.3,1],[.8,1],[.1,1],[.1,1],[1,1],[.6,0],[.2,0],[.3,0],[.3,0],[.3,0],[.5,0],[.3,0],[.12,1],[.12,0],[.12,0],[.12,0],[.1,0],[.1,0],[.08,1],[.08,1],[.08,1],[.01,1],[.01,1],[.0004,1],[.0004,1],[1.8,1],[.2,1],[1,1],[.6,0],[.35,0],[.03,0],[.01,0],[.01,0],[.0009,1],[.0018,1],[.015,1],[.04,1],[.01,1],[.01,1],[.01,1],[.01,1],[.03,1],[2.6,1],[.1,1],[.45,1],[.2,1],[.03,1],[.0001,1],[.01,1],[.0005,1],[.0004,1],[.09,1],[.0003,1],[.00005,1],[1,1],[.5,0],[.3,0],[.01,0]];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const f=n=>"₹"+(+(+n).toFixed(2)).toLocaleString("en-IN");
+const pc=(a,p)=>{const i=(a.length-1)*p,l=Math.floor(i);return a[l]+(a[Math.min(l+1,a.length-1)]-a[l])*(i-l)};
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const pct=x=>(x>=0?"+":"")+(x*100).toFixed(1)+"%";
+const cr=x=>x>=1e7?(x/1e7).toFixed(2)+" Cr":(x/1e5).toFixed(1)+" L";
+const pad=i=>"R"+String(i+1).padStart(3,"0");
+const NOISE=["ms","pvt","ltd","llp","private","limited","co","company","and","the"];
+const nk=s=>String(s||"").toLowerCase().replace(/&/g," and ").replace(/\bm\/s\b/g," ").replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w&&!NOISE.includes(w)).map(w=>w.length>3&&w.endsWith("s")?w.slice(0,-1):w).join(" ");
+const pk=s=>String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+const today=()=>new Date().toISOString().slice(0,10);
+const daysAgo=d=>d?(Date.now()-Date.parse(d))/864e5:Infinity;
+const fd=d=>d?new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"–";
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function toast(m,k){const t=$("#toast");t.textContent=m;t.className=k||"";t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",4500)}
+
+/* ---------- scoring model ---------- */
+const MC=[["q","Quality of work",30,/quality|workmanship|finish/i],["s","Safety compliance",20,/safety|ppe/i],["e","Speed and progress (engineering team)",20,/speed|progress|schedul|timeline|deliver/i],["c","Documentation and billing (contract team)",15,/document|billing|bill\b|paperwork|measurement/i],["a","Approach and attitude",15,/approach|attitude|behav|cooperat|responsive|communicat/i]];
+const CF=[["t","Behaviour of our team",1,/behav|team/i],["p","Payment policy and timeliness",1,/payment|pay\b/i],["u","Site support from our team",1,/support|site/i],["k","Clarity of scope and terms",1,/scope|clarity|terms/i]];
+const LB=["","Very poor","Poor","Average","Good","Excellent"],AL5=["","Very negative","Negative","Neutral","Positive","Very positive"];
+const gr=s=>s>=4.2?["A","Preferred","good"]:s>=3.5?["B","Approved","good"]:s>=2.8?["C","Watchlist","warn"]:["D","Restrict","bad"];
+const canon=(l,dir)=>{const L=dir==="theirs"?CF:MC,s=String(l).toLowerCase(),h=L.find(x=>x[1].toLowerCase()===s)||L.find(x=>x[3].test(l));return h?h[0]:null};
+const rowScore=r=>{const ks=Object.entries(r.scores||{}).filter(x=>isFinite(x[1]));if(!ks.length)return null;if(r.dir==="theirs")return avg(ks.map(x=>+x[1]));let w=0,s=0,m=0;ks.forEach(([l,v])=>{const k=canon(l,"ours");if(k){const wt=MC.find(x=>x[0]===k)[2];w+=wt;s+=wt*v;m++}});return m>=2?s/w:avg(ks.map(x=>+x[1]))};
+function params(rows,dir){const M={};rows.forEach(r=>Object.entries(r.scores||{}).forEach(([l,v])=>{if(!isFinite(v))return;const k=canon(l,dir),nm=k?(dir==="theirs"?CF:MC).find(x=>x[0]===k)[1]:l;(M[nm]=M[nm]||[]).push(+v)}));return Object.entries(M).map(([l,a])=>[l,avg(a)])}
+const byDate=(a,b)=>(a.date||"")<(b.date||"")?-1:(a.date||"")>(b.date||"")?1:0;
+
+/* ---------- state ---------- */
+let LIVE=false,CODE="",MODE="demo",ST={items:[],rates:[],projects:[],contractors:[],feedback:[],aliases:[],meta:{}},D=[],DI={},cats=[],PE=[],AL={};
+function legacyReg(){const o=LS.get("mlreg",[]).map(x=>({id:"L"+x.n,n:x.n,i:typeof x.i==="number"?pad(x.i):x.i,r:+x.r,s:x.s,p:x.p,t:x.t,d:x.d,l:x.l,x:x.x,a:""}));return o.concat(LS.get("mlreg2",[]))}
+function legacyFb(){const o=LS.get("mlrate",[]).map((x,i)=>{const L=x.t==="m"?MC:CF,sc={};Object.entries(x.sc||{}).forEach(([k,v])=>{const h=L.find(a=>a[0]===k);if(h)sc[h[1]]=+v});return{id:"L"+i,date:x.d,vendor:x.n,site:x.s,by:x.by,dir:x.t==="m"?"ours":"theirs",src:"local",scores:sc,again:x.again||"",comment:x.cm||""}});return o.concat(LS.get("mlfb2",[]))}
+function seedState(){const items=[],rates=[];RAW.forEach(([cat,name,unit,s],i)=>{const id=pad(i);items.push({id,cat,name,unit,f:F[i][0],on:F[i][1]});let q=0;s.split(",").forEach(t=>{const[m,n]=t.split("x");for(let k=0;k<(n?+n:1);k++)rates.push({i:id,p:"",b:"",c:"",r:+m,d:"",s:++q,x:""})})});
+ const ex=LS.get("mlx",{items:[],rates:[]});ST={items:items.concat(ex.items),rates:rates.concat(ex.rates),projects:[],contractors:legacyReg(),feedback:legacyFb(),aliases:[],meta:{}}}
+function applyBoot(d){ST={items:d.items||[],rates:(d.rates||[]).map(a=>({i:a[0],p:a[1],b:a[2],c:a[3],r:+a[4],d:a[5],s:+a[6]||0,x:a[7]})),projects:d.projects||[],contractors:d.contractors||[],feedback:d.feedback||[],aliases:d.aliases||[],meta:d.meta||{}}}
+const nameCanon=n=>AL[nk(n)]||String(n||"").trim();
+function derive(){AL={};ST.aliases.forEach(a=>{if(a.a&&a.o)AL[nk(a.a)]=String(a.o).trim()});
+ const by={};ST.rates.forEach(r=>{(by[r.i]=by[r.i]||[]).push(r)});
+ const cmp=(a,b)=>{if(!!a.d!==!!b.d)return a.d?1:-1;if(a.d&&b.d&&a.d!==b.d)return a.d<b.d?-1:1;return(a.s||0)-(b.s||0)};
+ D=ST.items.map(it=>{const e=(by[it.id]||[]).slice().sort(cmp),v=e.map(x=>x.r),n=v.length,d={...it,e,v,n};
+  d.hay=[it.name,it.cat,it.unit].concat(e.map(x=>(x.p||"")+" "+(x.b||"")+" "+(x.c||""))).join(" ").toLowerCase();
+  if(!n){Object.assign(d,{min:0,max:0,avg:0,med:0,p25:0,p75:0,p90:0,last:0,sl:0,fc:0,vol:0,spread:0,out:0});return d}
+  const a=[...v].sort((x,y)=>x-y),av=v.reduce((x,y)=>x+y,0)/n,med=pc(a,.5),xm=(n-1)/2;let sxy=0,sxx=0;v.forEach((y,i)=>{sxy+=(i-xm)*(y-av);sxx+=(i-xm)**2});
+  const sl=sxx?sxy/sxx:0,sd=Math.sqrt(v.reduce((x,y)=>x+(y-av)**2,0)/n);
+  Object.assign(d,{min:a[0],max:a[n-1],avg:av,med,p25:pc(a,.25),p75:pc(a,.75),p90:pc(a,.9),last:v[n-1],sl,fc:av+sl*(n-xm),vol:av?sd/av:0,spread:a[0]?(a[n-1]-a[0])/a[0]:0,out:v.filter(x=>x>1.5*med||x<.6*med).length});return d});
+ DI={};D.forEach(d=>DI[d.id]=d);cats=[...new Set(D.map(d=>d.cat))];buildPeople()}
+function buildPeople(){const M={},get=n=>{const nm=nameCanon(n),k=nk(nm);if(!k)return null;return M[k]||(M[k]={key:k,name:nm,ents:[],reg:[],fb:[],sites:new Set()})};
+ D.forEach(d=>d.e.forEach(en=>{if(!en.c)return;const P=get(en.c);P.ents.push({d,en});if(en.p)P.sites.add(en.p.trim())}));
+ ST.contractors.forEach(c=>{const P=get(c.n);if(!P)return;P.reg.push(c);if(c.s)P.sites.add(c.s)});
+ ST.feedback.forEach(r=>{const P=get(r.vendor);if(!P)return;P.fb.push(r);if(r.site)P.sites.add(r.site)});
+ PE=Object.values(M).map(P=>{const q=P.ents.map(x=>({d:x.d,r:x.en.r})).concat(P.reg.filter(c=>DI[c.i]).map(c=>({d:DI[c.i],r:+c.r}))),L=q.filter(x=>x.d.n>=3&&x.d.med).map(x=>x.r/x.d.med-1);
+  P.dv=L.length?avg(L):null;P.items=new Set(q.map(x=>x.d.id)).size;P.n=P.ents.length+P.reg.length;
+  P.ours=P.fb.filter(r=>r.dir!=="theirs").sort(byDate);P.theirs=P.fb.filter(r=>r.dir==="theirs").sort(byDate);
+  P.os=P.ours.map(rowScore).filter(x=>x!=null);P.ts=P.theirs.map(rowScore).filter(x=>x!=null);P.ms=avg(P.os);P.fs=avg(P.ts);
+  P.rv=P.fb.length;P.last=P.fb.reduce((m,r)=>(r.date||"")>m?r.date:m,"");P.g=P.ms!=null?gr(P.ms):null;P.sc=P.ms;return P})}
+function projectRows(){const M={};ST.projects.forEach(p=>M[pk(p.name)]={name:p.name,loc:p.loc||"",st:p.structure||"",bua:p.bua||0,resp:p.resp||"",ents:[]});
+ D.forEach(d=>d.e.forEach(en=>{if(!en.p||!en.p.trim())return;const k=pk(en.p);(M[k]=M[k]||{name:en.p.trim(),loc:"",st:"",bua:0,resp:"",ents:[]}).ents.push({d,en})}));
+ return Object.values(M).map(P=>{const L=P.ents.filter(x=>x.d.n>=3&&x.d.med).map(x=>x.en.r/x.d.med-1);return{...P,items:new Set(P.ents.map(x=>x.d.id)).size,n:P.ents.length,dv:L.length?avg(L):null,nc:new Set(P.ents.filter(x=>x.en.c).map(x=>nk(nameCanon(x.en.c)))).size}})}
+
+/* ---------- shared pieces ---------- */
+const lr=(l,s)=>`<div class="lr"><span title="${esc(l)}">${esc(l)}</span><div class="bar" style="width:${s?s/5*100:0}%"></div><b>${s?s.toFixed(1):"–"}</b></div>`;
+function chart(d,esc2=0){if(!d.n)return"";const W=520,H=170,p=24,m=Math.max(...d.v,d.fc)*1.1,bw=(W-2*p)/(d.n+1);
+let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Rate history for ${esc(d.name)}">`;
+d.v.forEach((y,i)=>{const h=y/m*(H-2*p);s+=`<rect x="${p+i*bw+1}" y="${H-p-h}" width="${bw-2}" height="${h}" fill="var(--navy)" opacity=".85"><title>Entry ${i+1}: ${f(y)}</title></rect>`});
+const fy=d.fc*(1+esc2/100),fh=Math.max(0,fy)/m*(H-2*p);s+=`<rect x="${p+d.n*bw+1}" y="${H-p-fh}" width="${bw-2}" height="${fh}" fill="none" stroke="var(--gold)" stroke-width="2" stroke-dasharray="3"><title>Forecast ${f(fy)}</title></rect>`;
+const my=H-p-d.med/m*(H-2*p);s+=`<line x1="${p}" x2="${W-p}" y1="${my}" y2="${my}" stroke="var(--gold)" stroke-width="1.5"/><text x="${p}" y="${my-3}">median ${f(d.med)}</text><text x="${p}" y="${H-6}">entries in order, dashed = forecast</text></svg>`;return s}
+function verdict(d,r,e=0){const k=1+e/100,med=d.med*k,p90=d.p90*k,mn=d.min*k;
+if(r<=mn)return["Below every benchmark","warn","Confirm scope, material grade and capacity before awarding."];
+if(r<=med)return["Strong quote","good","At or below the median. Safe to proceed."];
+if(r<=d.p75*k)return["Fair quote","good","Within the usual band. Try for the median."];
+if(r<=p90)return["High, negotiate","warn","Above the usual band. Push toward the median."];
+return["Above benchmark","bad","Above the 90th percentile. Seek alternatives."]}
+const priceCls=dv=>dv==null?null:dv<=.03?["near or below the median","good"]:dv<=.12?["above the median","warn"]:["well above the median","bad"];
+function award(g,cl){return g[0]==="D"?"Do not award":cl==="bad"?"Negotiate price before awarding":(g[0]<"C"&&cl==="good")?"Award":"Award with conditions"}
+function opts(sel,withNew){const v=sel.value;sel.innerHTML=cats.map(c=>`<optgroup label="${esc(c)}">${D.filter(d=>d.cat===c).map(d=>`<option value="${esc(d.id)}">${esc(d.name)} (${esc(d.unit)})</option>`).join("")}</optgroup>`).join("")+(withNew?'<option value="__new">New activity…</option>':"");if(v&&[...sel.options].some(o=>o.value===v))sel.value=v}
+function findP(name){const k=nk(nameCanon(name));return PE.find(p=>p.key===k)}
+
+/* ---------- overview ---------- */
+function ov(){const DD=D.filter(d=>d.n),vol=[...DD].sort((a,b)=>b.spread-a.spread).slice(0,8),up=DD.filter(d=>d.n>5).sort((a,b)=>(b.fc/b.last)-(a.fc/a.last)).slice(0,8),fl=DD.filter(d=>d.out),np=projectRows().length||11;
+const bars=(L,fn,fm)=>{const mx=Math.max(...L.map(fn))||1;return L.map(d=>`<div class="lr"><span title="${esc(d.name)}">${esc(d.name)}</span><div class="bar" style="width:${Math.max(3,fn(d)/mx*100)}%"></div><b>${fm(d)}</b></div>`).join("")};
+const rated=PE.filter(p=>p.ms!=null),wl=rated.filter(p=>p.g[0]>="C").sort((a,b)=>a.ms-b.ms);
+$("#ov").innerHTML=`<div class="g k"><div class="c"><div class="big">${np}</div><span class="m">sites benchmarked</span></div><div class="c"><div class="big">${DD.length}</div><span class="m">rate items tracked</span></div><div class="c"><div class="big">${cats.length}</div><span class="m">trade groups</span></div><div class="c"><div class="big">${DD.length?(DD.reduce((x,d)=>x+d.spread,0)/DD.length*100).toFixed(0):0}%</div><span class="m">average gap between lowest and highest rate</span></div><div class="c"><div class="big">${fl.length}</div><span class="m">items with outlier entries to verify</span></div><div class="c"><div class="big">${PE.length}</div><span class="m">contractors tracked</span></div><div class="c"><div class="big">${rated.length?avg(rated.map(p=>p.ms)).toFixed(1):"–"}</div><span class="m">average vendor score (of 5)</span></div></div>
+<div class="g two" style="margin-top:12px"><div class="c"><h3>Widest rate gaps</h3><p class="m">Biggest room for negotiation: highest rate vs lowest rate paid.</p>${bars(vol,d=>d.spread,d=>(d.spread*100).toFixed(0)+"%")}</div>
+<div class="c"><h3>Rates likely to rise next</h3><p class="m">Trend forecast vs latest entry.</p>${bars(up,d=>Math.max(0,d.fc/d.last-1)+.001,d=>pct(d.fc/d.last-1))}</div></div>
+<div class="g two" style="margin-top:12px"><div class="c"><h3>Vendors to watch</h3><p class="m">Grade C or D from the vendor feedback.</p>${wl.length?wl.slice(0,8).map(p=>`<div class="lr" style="grid-template-columns:1fr 60px 40px"><span>${esc(p.name)}</span><span class="pill ${p.g[2]}">${p.g[0]} · ${p.ms.toFixed(1)}</span><span></span></div>`).join(""):'<p class="m">No vendor is below grade B yet, or no feedback has arrived. Open the Vendor feedback tab to sync.</p>'}</div>
+<div class="c"><h3>Outliers to verify</h3><p class="m">Values far from the median: likely a different scope, unit or data-entry error.</p><div class="tw" style="max-height:220px;overflow:auto"><table><tr><th>Item</th><th>Median</th><th>Min</th><th>Max</th></tr>${fl.map(d=>`<tr><td>${esc(d.name)}</td><td>${f(d.med)}</td><td>${f(d.min)}</td><td>${f(d.max)}</td></tr>`).join("")}</table></div></div></div>
+<div class="note">How to read this: rate entries without a date run in master-list order. Forecasts extend that trend and are directional; add an escalation % for your own view of the market.</div>`}
+
+/* ---------- search and sort ---------- */
+let mode="a",sel="",SORT={a:["name",1],p:["name",1],c:["name",1]};
+const COLS={a:[["name","Item"],["unit","Unit"],["min","Low"],["med","Median"],["max","High"],["last","Latest"],["fc","Forecast"],["vol","Variation"],["n","Entries"]],
+p:[["name","Project"],["loc","Location"],["items","Activities priced"],["n","Entries"],["dv","Avg vs median"],["nc","Contractors"]],
+c:[["name","Contractor"],["items","Activities"],["n","Rate entries"],["dv","Avg vs median"],["sc","Our score"],["rv","Reviews"],["last","Last review"]]};
+const dvh=v=>v==null?"–":`<span class="${v<=.03?"good":v<=.12?"warn":"bad"}">${pct(v)}</span>`;
+function exRows(){const q=$("#q").value.toLowerCase().trim(),c=$("#cat").value;
+ const hit=s=>!q||q.split(/\s+/).every(w=>s.toLowerCase().includes(w));
+ return{a:D.filter(d=>(!c||d.cat===c)&&hit(d.hay)),p:projectRows().filter(p=>hit(p.name+" "+p.loc+" "+p.ents.map(x=>x.en.c).join(" "))),c:PE.filter(p=>hit(p.name+" "+[...p.sites].join(" ")+" "+p.ents.map(x=>x.d.name).join(" ")+" "+p.reg.map(x=>(DI[x.i]||{}).name+" "+x.p+" "+x.x).join(" ")))}}
+function ex(){const R=exRows(),L=R[mode],names={a:"Activities",p:"Projects",c:"Contractors"};
+ $("#modes").innerHTML=Object.keys(names).map(k=>`<button class="chip${k===mode?" on":""}" data-m="${k}">${names[k]} (${R[k].length})</button>`).join("");
+ $("#cat").style.display=mode==="a"?"":"none";
+ $("#srt").innerHTML=COLS[mode].flatMap(([k,l])=>[[k,1,k==="name"?"A to Z":"low to high"],[k,-1,k==="name"?"Z to A":"high to low"]].map(([kk,d,t])=>`<option value="${kk}|${d}">${l}, ${t}</option>`)).join("");
+ $("#srt").value=SORT[mode].join("|");
+ const[k,dir]=SORT[mode];L.sort((a,b)=>{const x=a[k],y=b[k];return(typeof x==="string"||typeof y==="string"?String(x??"").localeCompare(String(y??"")):(x??-Infinity)-(y??-Infinity))*dir});
+ const cell={a:(d,c)=>({name:esc(d.name)+(d.out?' <span class="pill warn" title="Contains outlier entries">!</span>':""),unit:esc(d.unit),min:d.n?f(d.min):"–",med:d.n?f(d.med):"–",max:d.n?f(d.max):"–",last:d.n?f(d.last):"–",fc:d.n?f(d.fc):"–",vol:d.n?(d.vol*100).toFixed(0)+"%":"–",n:d.n})[c],
+ p:(p,c)=>({name:esc(p.name),loc:esc(p.loc||"–"),items:p.items,n:p.n,dv:dvh(p.dv),nc:p.nc})[c],
+ c:(p,c)=>({name:esc(p.name),items:p.items,n:p.n,dv:dvh(p.dv),sc:p.ms!=null?`<span class="pill ${p.g[2]}">${p.g[0]} · ${p.ms.toFixed(1)}</span>`:"–",rv:p.rv,last:p.last?fd(p.last):"–"})[c]}[mode];
+ const id=r=>mode==="a"?r.id:mode==="p"?pk(r.name):r.key;
+ $("#tb").className=mode==="a"?"":"l";
+ $("#tb").innerHTML=`<tr>${COLS[mode].map(([k,l])=>`<th data-s="${k}">${l}${k===SORT[mode][0]?(SORT[mode][1]>0?" ▲":" ▼"):""}</th>`).join("")}</tr>`+(L.map(r=>`<tr class="r${id(r)===sel?" sel":""}" data-i="${esc(id(r))}">${COLS[mode].map(([k])=>`<td>${cell(r,k)}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${COLS[mode].length}" style="text-align:left">${emptyMsg(mode)}</td></tr>`);
+ if(!sel||!L.some(r=>id(r)===sel))$("#det").innerHTML=`<h3>Select a row</h3><p class="m">Click any row to see rates, benchmark band, forecast and linked contractors or projects.</p>`;
+ $$("#tb th").forEach(t=>t.onclick=()=>{const k=t.dataset.s;SORT[mode]=[k,SORT[mode][0]===k?-SORT[mode][1]:1];ex()});
+ $$("#tb tr.r").forEach(t=>t.onclick=()=>{sel=t.dataset.i;ex();show(sel)})}
+function emptyMsg(m){if(m==="p"&&!projectRows().length)return"No project names in the rate data yet. Fill the Project column on the Rates tab of the Google Sheet, or add a rate entry with a project.";return"Nothing matches. Try a shorter search."}
+function show(i){mode==="a"?detA(DI[i]):mode==="p"?detP(i):detC(i)}
+const entTbl=(rows)=>`<div class="tw" style="max-height:260px;overflow:auto"><table class="l"><tr><th>Project</th><th>Contractor</th><th>Rate</th><th>vs median</th><th>Date</th></tr>${rows.join("")}</table></div>`;
+function detA(d){if(!d)return;const withInfo=d.e.filter(x=>x.p||x.c||x.b);
+$("#det").innerHTML=`<h3>${esc(d.name)}</h3><p class="m">${esc(d.cat)} · ${esc(d.unit)} · ${d.n} entries</p>${d.n?`${chart(d)}
+<div class="g k" style="margin-top:8px"><div><b>${f(d.p25)}–${f(d.p75)}</b><div class="m">usual band</div></div><div><b>${f(d.p90)}</b><div class="m">ceiling (90th pct)</div></div><div><b>${f(d.fc)}</b><div class="m">forecast ${pct(d.fc/d.last-1)}</div></div></div>
+<p>Negotiate toward <b>${f(d.med)}</b>; walk away above <b>${f(d.p90)}</b>. ${d.sl>0.01*d.avg/d.n*3?"Rates are trending up.":d.sl<-0.01*d.avg/d.n*3?"Rates are trending down.":"Rates are stable."}</p>
+${withInfo.length?`<h3 style="margin-top:10px">Who paid what</h3>${entTbl(withInfo.slice().sort((a,b)=>b.r-a.r).slice(0,60).map(x=>`<tr><td>${esc([x.p,x.b].filter(Boolean).join(" · ")||"–")}</td><td>${esc(x.c||"–")}</td><td>${f(x.r)}</td><td>${dvh(x.r/d.med-1)}</td><td>${x.d?fd(x.d):"–"}</td></tr>`))}`:'<p class="m">These entries come from the master list without project or contractor names. Fill them in on the Rates tab of the Google Sheet to see who paid what.</p>'}`:'<p class="m">No rate entries yet for this activity.</p>'}`}
+function detP(k){const P=projectRows().find(p=>pk(p.name)===k);if(!P)return;const rows=P.ents.slice().sort((a,b)=>(b.en.r/b.d.med)-(a.en.r/a.d.med));
+$("#det").innerHTML=`<h3>${esc(P.name)}</h3><p class="m">${esc([P.loc,P.st,P.bua?P.bua.toLocaleString("en-IN")+" sft BUA":"",P.resp].filter(Boolean).join(" · ")||"No project details yet. Add them on the Projects tab.")}</p>
+<div class="g k"><div><b>${P.items}</b><div class="m">activities priced</div></div><div><b>${P.nc}</b><div class="m">contractors</div></div><div><b>${dvh(P.dv)}</b><div class="m">average vs median</div></div></div>
+${rows.length?`<h3 style="margin-top:10px">Rates at this project</h3><div class="tw" style="max-height:300px;overflow:auto"><table class="l"><tr><th>Activity</th><th>Contractor</th><th>Rate</th><th>vs median</th></tr>${rows.map(x=>`<tr><td>${esc(x.d.name)}</td><td>${esc(x.en.c||"–")}</td><td>${f(x.en.r)}</td><td>${x.d.med?dvh(x.en.r/x.d.med-1):"–"}</td></tr>`).join("")}</table></div>`:'<p class="m">No rate entries are linked to this project yet.</p>'}`}
+function detC(k){const P=PE.find(p=>p.key===k);if(!P)return;const dv=priceCls(P.dv),ents=P.ents.slice().sort((a,b)=>(b.en.r/b.d.med)-(a.en.r/a.d.med));
+$("#det").innerHTML=`<h3>${esc(P.name)} ${P.g?`<span class="pill ${P.g[2]}">${P.g[0]} · ${P.g[1]}</span>`:""}</h3><p class="m">${esc([...P.sites].join(", ")||"No sites linked yet")}</p>
+<div class="g k"><div><b>${P.ms!=null?P.ms.toFixed(1):"–"}</b><div class="m">our score (of 5), ${P.ours.length} reviews</div></div><div><b>${P.fs!=null?P.fs.toFixed(1):"–"}</b><div class="m">their score of us</div></div><div><b>${dvh(P.dv)}</b><div class="m">price vs median</div></div></div>
+${P.g&&dv?`<p><b>Award view:</b> ${award(P.g,dv[1])} (price is ${dv[0]})</p>`:dv?`<p class="m">No performance reviews yet. Price is ${dv[0]}.</p>`:""}
+${P.reg.length?`<h3 style="margin-top:10px">Quotes and terms</h3>${P.reg.map(c=>{const d=DI[c.i];return`<p>${esc(d?d.name:"Activity")}: <b>${f(c.r)}</b> ${esc(d?d.unit:"")} · ${esc(c.s||"")}<br><span class="m">Payment ${esc(c.p||"–")} · Retention ${esc(c.t||"–")}% · DLP ${esc(c.d||"–")} months · Delay penalty ${esc(c.l||"–")}</span></p>`}).join("")}`:""}
+${ents.length?`<h3 style="margin-top:10px">Rates paid</h3><div class="tw" style="max-height:240px;overflow:auto"><table class="l"><tr><th>Activity</th><th>Project</th><th>Rate</th><th>vs median</th></tr>${ents.map(x=>`<tr><td>${esc(x.d.name)}</td><td>${esc(x.en.p||"–")}</td><td>${f(x.en.r)}</td><td>${dvh(x.en.r/x.d.med-1)}</td></tr>`).join("")}</table></div>`:""}
+${P.fb.length?`<p class="m" style="margin-top:8px">${P.fb.length} feedback records. Open the Vendor feedback tab for the full scorecard.</p>`:""}`}
+$("#modes").onclick=e=>{const m=e.target.dataset.m;if(!m)return;mode=m;sel="";ex()};
+$("#srt").onchange=e=>{const[k,d]=e.target.value.split("|");SORT[mode]=[k,+d];ex()};
+
+/* ---------- quote checker ---------- */
+function qc(){const d=DI[$("#qi").value],r=parseFloat($("#qv").value),e=parseFloat($("#qe").value)||0;
+if(!d||!r||!d.n){$("#qr").innerHTML=`<p class="m">Enter a quote to see where it sits against Mangalam’s own history.</p>`;return}
+const[t,cl,adv]=verdict(d,r,e),rank=d.v.filter(x=>x*(1+e/100)<=r).length/d.n,sv=(r-d.med*(1+e/100)),P=$("#qn").value.trim()?findP($("#qn").value):null;
+$("#qr").innerHTML=`<h3><span class="pill ${cl}">${t}</span></h3><p>${adv}</p><p>Better than <b>${(100-rank*100).toFixed(0)}%</b> of rates Mangalam has paid. Benchmark median with escalation: <b>${f(d.med*(1+e/100))}</b>.</p><p>${sv>0?`Negotiating to the median saves <b>${f(sv)}</b> per ${esc(d.unit.replace("₹/",""))}.`:`This is <b>${f(-sv)}</b> under the median.`}</p>${P&&P.g?`<p><b>${esc(P.name)}:</b> grade ${P.g[0]} (${P.g[1]}), score ${P.ms.toFixed(1)}. Award view: <b>${award(P.g,cl)}</b></p>`:$("#qn").value.trim()?`<p class="m">No performance reviews found for “${esc($("#qn").value)}”.</p>`:""}${chart(d,e)}`}
+["#qi","#qv","#qe","#qn"].forEach(s=>$(s).oninput=qc);
+
+/* ---------- cost estimator ---------- */
+let FA={},XA={};
+function es(){const A=+$("#bua").value||0,e=1+(+$("#ee").value||0)/100,S={l:0,m:0,h:0,f:0},G={};let rows="";
+D.filter(d=>d.n).forEach(d=>{const fa=FA[d.id]??d.f,on=XA[d.id]??!!d.on,q=A*fa;
+if(on){S.l+=q*d.p25;S.m+=q*d.med;S.h+=q*d.p90;S.f+=q*d.fc;G[d.cat]=(G[d.cat]||0)+q*d.med}
+rows+=`<tr><td><input type="checkbox" data-x="${esc(d.id)}"${on?" checked":""} aria-label="Include ${esc(d.name)}" style="width:auto"></td><td>${esc(d.name)}<div class="m">${esc(d.cat)}</div></td><td>${esc(d.unit)}</td><td><input type="number" data-q="${esc(d.id)}" value="${+q.toFixed(2)}" style="width:110px"></td><td>${f(d.med)}</td><td>${on?cr(q*d.med):"–"}</td><td>${on?cr(q*d.p25)+" – "+cr(q*d.p90):"–"}</td></tr>`});
+$("#esum").innerHTML=`<div class="g k"><div><div class="big">${cr(S.m)}</div><span class="m">benchmark total</span></div><div><b>${cr(S.l)} – ${cr(S.h)}</b><div class="m">lean to high range</div></div><div><b>${cr(S.f*e)}</b><div class="m">trend forecast with escalation</div></div><div><b>${f(A?S.m/A:0)}</b><div class="m">benchmark cost per sft of BUA</div></div></div><p>Benchmark with escalation: <b>${cr(S.m*e)}</b></p>`;
+const GL=Object.entries(G).sort((a,b)=>b[1]-a[1]),mx=GL.length?GL[0][1]:1;
+$("#egr").innerHTML=`<h3>Benchmark cost by trade</h3>`+(GL.map(([k,v])=>`<div class="lr" style="grid-template-columns:150px 1fr 76px"><span title="${esc(k)}">${esc(k)}</span><div class="bar" style="width:${Math.max(2,v/(mx||1)*100)}%"></div><b>${cr(v)}</b></div>`).join("")||`<p class="m">Tick at least one item.</p>`);
+$("#er").innerHTML=`<table class="l"><tr><th></th><th>Item</th><th>Unit</th><th>Quantity</th><th>Median rate</th><th>Benchmark cost</th><th>Range (25th–90th pct)</th></tr>${rows}</table>`;
+$$("#er [data-x]").forEach(c=>c.onchange=()=>{XA[c.dataset.x]=c.checked;es()});
+$$("#er [data-q]").forEach(c=>c.onchange=()=>{FA[c.dataset.q]=A?(+c.value||0)/A:0;es()})}
+["#bua","#ee"].forEach(s=>$(s).oninput=es);$("#eres").onclick=()=>{FA={};XA={};es()};
+
+/* ---------- contractor register ---------- */
+function rg(){const q=$("#rq").value.toLowerCase(),L=ST.contractors.filter(x=>(x.n+" "+(DI[x.i]||{}).name+" "+x.s+" "+x.p+" "+x.x+" "+x.l).toLowerCase().includes(q));
+$("#rl2").innerHTML=L.map(x=>{const d=DI[x.i];if(!d)return"";const[t,cl]=d.n?verdict(d,+x.r):["No benchmark","warn"],P=findP(x.n);return`<div class="c" style="margin-bottom:8px"><b>${esc(x.n)}</b> <span class="pill ${cl}">${t}</span>${P&&P.g?` <span class="pill ${P.g[2]}">${P.g[0]} · ${P.g[1]}</span>`:""}<div class="m">${esc(d.name)} · ${f(x.r)} ${esc(d.unit)} · ${esc(x.s)}</div><div>Payment: ${esc(x.p)} · Retention ${esc(x.t)}% · DLP ${esc(x.d)} months · Delay penalty: ${esc(x.l)}</div><div class="m">${esc(x.x)}</div></div>`}).join("")||`<p class="m">No contractors saved yet. Add one on the left.</p>`}
+$("#rq").oninput=rg;
+$("#ra").onclick=async()=>{const r=parseFloat($("#rr").value),n=$("#rn").value.trim();if(!n||!r){toast("Enter the contractor name and offered rate.","bad");return}
+ const p={n,i:$("#ri").value,r,s:$("#rs").value.trim(),p:$("#rp").value,t:$("#rtn").value,d:$("#rd").value,l:$("#rl").value,x:$("#rx").value};
+ await commit("addContractor",p,()=>{const a=LS.get("mlreg2",[]);a.unshift({id:"L"+Date.now(),a:today(),...p});LS.set("mlreg2",a)},"Contractor saved");$("#rn").value="";$("#rx").value=""};
+
+/* ---------- vendor feedback ---------- */
+$("#mm").innerHTML=MC.map(([k,l])=>sel5("m",k,l,k==="a")).join("");$("#ff").innerHTML=CF.map(([k,l])=>sel5("f",k,l)).join("");
+function sel5(p,k,l,a){return`<div class="rs"><label for="${p}_${k}">${l}</label><select id="${p}_${k}">${[5,4,3,2,1].map(i=>`<option value="${i}"${i==3?" selected":""}>${i} ${(a?AL5:LB)[i]}</option>`).join("")}</select></div>`}
+function manual(t){const n=$("#"+t+"n").value.trim();if(!n){toast("Enter the contractor name.","bad");return}const L=t==="m"?MC:CF,scores={};L.forEach(([k,l])=>scores[l]=+$("#"+t+"_"+k).value);
+ const p={vendor:n,site:$("#"+t+"site").value.trim(),by:$("#"+t+"by").value.trim(),dir:t==="m"?"ours":"theirs",scores,again:t==="f"?$("#fy").value:"",comment:$("#"+t+"x").value.trim(),date:today()};
+ commit("addFeedback",p,()=>{const a=LS.get("mlfb2",[]);a.unshift({id:"L"+Date.now(),src:"manual",...p});LS.set("mlfb2",a)},"Saved").then(()=>{$("#"+t+"n").value="";$("#"+t+"x").value=""})}
+$("#madd").onclick=()=>manual("m");$("#fadd").onclick=()=>manual("f");$("#tq").oninput=()=>rt();
+function insights(P){const I=[];if(P.ms!=null&&P.fs!=null){if(P.ms>=4&&P.fs<3)I.push("High performer who is unhappy with us. Payment or support gaps could cost us this contractor.");else if(P.ms<3&&P.fs>=4)I.push("They are happy with our support, so the performance gap is on their side.");else if(P.ms<3&&P.fs<3)I.push("Both sides are unhappy. Review the relationship before the next award.")}
+const sf=params(P.ours,"ours").find(x=>x[0]===MC[1][1]);if(sf&&sf[1]<3)I.push("Safety is below standard. Do not award without a written safety plan.");
+const tr=P.os.length>1?P.os[P.os.length-1]-P.os[0]:0;if(tr>.3)I.push("Performance is improving over successive reviews.");if(tr<-.3)I.push("Performance is declining over successive reviews.");return I}
+function rt(){const q=$("#tq").value.toLowerCase(),af=PE.flatMap(p=>p.theirs),all=PE.filter(p=>p.rv);
+ const low=CF.map(([k,l])=>{const a=af.map(r=>Object.entries(r.scores||{}).find(([x])=>canon(x,"theirs")===k)).filter(Boolean).map(x=>+x[1]);return[l,avg(a)]}).filter(x=>x[1]!=null).sort((a,b)=>a[1]-b[1])[0];
+ const gap=PE.filter(p=>(p.reg.length||p.ents.length)&&!p.ours.some(r=>daysAgo(r.date)<=90)).length,m=ST.meta||{};
+ $("#tk").innerHTML=`<div class="c"><div class="big">${all.length}</div><span class="m">contractors with reviews</span></div><div class="c"><div class="big">${PE.some(p=>p.ms!=null)?avg(PE.filter(p=>p.ms!=null).map(p=>p.ms)).toFixed(1):"–"}</div><span class="m">average score we give (of 5)</span></div><div class="c"><div class="big">${PE.some(p=>p.fs!=null)?avg(PE.filter(p=>p.fs!=null).map(p=>p.fs)).toFixed(1):"–"}</div><span class="m">average score they give us (of 5)</span></div><div class="c"><div class="big">${gap}</div><span class="m">contractors with a contract but no review in 90 days</span></div><div class="c"><div class="big" style="font-size:16px">${low?esc(low[0]):"–"}</div><span class="m">${low?"weakest area in our own report card: "+low[1].toFixed(1):"add contractor feedback to see our weakest area"}</span></div>`;
+ $("#syncinfo").textContent=!LIVE?"Connect the Google Sheet to sync the vendor feedback app automatically.":!m.feedbackConfigured?"The vendor feedback source is not set up yet. Fill FEEDBACK_SOURCE in Code.gs.":m.lastSync?`Last sync ${new Date(m.lastSync).toLocaleString("en-IN")}, ${m.lastAdded} new. The sheet also syncs daily.`:"Not synced yet. Press the button to pull feedback now.";
+ $("#cn").innerHTML=PE.map(p=>`<option value="${esc(p.name)}">`).join("");$("#pn").innerHTML=projectRows().map(p=>`<option value="${esc(p.name)}">`).join("");
+ const L=PE.filter(p=>p.rv).filter(p=>!q||(p.name+" "+[...p.sites].join(" ")+" "+p.fb.map(r=>r.comment).join(" ")).toLowerCase().includes(q)).sort((a,b)=>(b.ms||0)-(a.ms||0));
+ $("#tl").innerHTML=L.map(P=>{const g=P.g,I=insights(P),dv=priceCls(P.dv),rc=g&&dv?`<p><b>Award view:</b> ${award(g,dv[1])} (price is ${dv[0]})</p>`:"",
+ cm=P.fb.filter(r=>r.comment).slice(-3).reverse().map(r=>`<div class="m">${r.dir==="theirs"?"Their view":"Our view"}, ${fd(r.date)}${r.by?" · "+esc(r.by):""}: ${esc(r.comment)}</div>`).join("");
+ return`<div class="cd"><b>${esc(P.name)}</b> ${g?`<span class="pill ${g[2]}">${g[0]} · ${g[1]}</span>`:""} <span class="m">${P.ours.length} ratings by us, ${P.theirs.length} feedback from them${P.theirs.some(r=>r.again==="No")?", would not work with us again":""}${P.last?" · last "+fd(P.last):""}</span>
+ <div class="g two"><div><p class="m">Our rating of them: ${P.ms!=null?P.ms.toFixed(1):"–"}</p>${params(P.ours,"ours").slice(0,8).map(([l,s])=>lr(l,s)).join("")}</div><div><p class="m">Their rating of us: ${P.fs!=null?P.fs.toFixed(1):"–"}</p>${params(P.theirs,"theirs").map(([l,s])=>lr(l,s)).join("")}</div></div>${I.map(i=>`<p>${esc(i)}</p>`).join("")}${rc}${cm}</div>`}).join("")||`<p class="m">No reviews yet. Sync the vendor feedback app or save a rating above to start a scorecard.</p>`}
+
+/* ---------- data and setup ---------- */
+function dt(){const m=ST.meta||{};
+ $("#dst").innerHTML=MODE==="live"?`<p><span class="pill good">Live</span> Reading and writing the Google Sheet.</p><p class="m">${ST.items.length} activities · ${ST.rates.length} rate entries · ${ST.contractors.length} contractor quotes · ${ST.feedback.length} feedback records</p>`:MODE==="error"?`<p><span class="pill bad">Not reachable</span> The Google Sheet did not respond. Showing built-in demo data.</p><p class="m">Check the web app URL and that access is set to Anyone.</p>`:`<p><span class="pill warn">Demo data</span> Not connected to a Google Sheet. Changes are saved only in this browser.</p><p class="m">Paste the Apps Script web app URL into CONFIG.API_URL at the top of this file to go live.</p>`;
+ opts($("#xi"),true);$("#xnew").style.display=$("#xi").value==="__new"?"flex":"none";if(!$("#xd").value)$("#xd").value=today();
+ $("#dnote").innerHTML=MODE==="live"?"Tip: fill the Project and Contractor columns on the Rates tab of the sheet. Search, project views and contractor price checks improve as they fill in.":"Setup steps: import Mangalam_Rate_DB_Seed.xlsx into Google Sheets, paste Code.gs into Apps Script, deploy it as a web app, add chat.js as /api/chat on Vercel, then set CONFIG.API_URL above."}
+$("#xi").onchange=dt;
+$("#xs").onclick=async()=>{const i=$("#xi").value,nw=i==="__new",r=parseFloat($("#xr").value);if(!(r>0)){toast("Enter the rate.","bad");return}
+ const p={i:nw?"":i,cat:$("#xc").value.trim()||"Other",name:$("#xn").value.trim(),unit:$("#xu").value.trim(),project:$("#xp").value.trim(),building:$("#xb").value.trim(),contractor:$("#xk").value.trim(),rate:r,date:$("#xd").value||today(),note:$("#xx").value.trim()};
+ if(nw&&(!p.name||!p.unit)){toast("Give the new activity a name and unit.","bad");return}
+ await commit("addRate",p,()=>{const x=LS.get("mlx",{items:[],rates:[]});let id=p.i;if(nw){let n=ST.items.length;while(ST.items.some(t=>t.id===pad(n)))n++;id=pad(n);x.items.push({id,cat:p.cat,name:p.name,unit:p.unit,f:0,on:0})}
+  x.rates.push({i:id,p:p.project,b:p.building,c:p.contractor,r:p.rate,d:p.date,s:ST.rates.filter(t=>t.i===id).length+1,x:p.note});LS.set("mlx",x)},"Rate entry saved");$("#xr").value="";$("#xx").value=""};
+
+/* ---------- loading, saving, syncing ---------- */
+function jsonp(action,o={}){return new Promise((res,rej)=>{const cb="mlcb"+Date.now()+Math.floor(Math.random()*1e6),s=document.createElement("script"),q=new URLSearchParams({action,callback:cb,code:CODE});if(o.p)q.set("p",JSON.stringify(o.p));
+ const done=()=>{clearTimeout(t);delete window[cb];s.remove()},t=setTimeout(()=>{done();rej(new Error("The Google Sheet took too long to respond"))},60000);
+ window[cb]=d=>{done();d&&d.ok?res(d):rej(new Error(d&&d.error||"Request failed"))};s.onerror=()=>{done();rej(new Error("Could not reach the Google Sheet backend"))};s.src=CONFIG.API_URL+"?"+q;document.head.appendChild(s)})}
+function status(){const s=$("#st");s.textContent=MODE==="live"?"Live from Google Sheet":MODE==="error"?"Sheet not reachable: demo data":"Demo data, not connected";s.className="pill"}
+function renderAll(){derive();status();opts($("#qi"));opts($("#ri"));$("#cat").innerHTML='<option value="">All trades</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join("");ov();ex();qc();es();rg();rt();dt()}
+async function load(){try{applyBoot(await jsonp("bootstrap"));MODE="live";LIVE=true;renderAll();return true}catch(e){if(/access code/i.test(e.message)){gate("That code was not accepted. Try again.");return false}toast(e.message,"bad");MODE="error";LIVE=false;seedState();renderAll();return true}}
+async function commit(act,p,demo,okMsg){try{if(LIVE){await jsonp(act,{p});await load()}else{demo();seedState();renderAll()}toast(okMsg)}catch(e){toast(e.message,"bad")}}
+async function syncNow(){if(!LIVE){toast("Connect the Google Sheet first (see Data and setup).","bad");return}$$(".syncbtn").forEach(b=>b.disabled=true);try{const r=await jsonp("syncFeedback");await load();toast(`Feedback synced: ${r.added} new of ${r.scanned} reviews`)}catch(e){toast(e.message,"bad")}$$(".syncbtn").forEach(b=>b.disabled=false)}
+$$(".syncbtn").forEach(b=>b.onclick=syncNow);$("#reload").onclick=async()=>{if(!LIVE){toast("Not connected to a Google Sheet.","bad");return}await load();toast("Reloaded")};
+function gate(m){$("#ge").textContent=m||"";$("#gate").style.display="flex";$("#gc").focus()}
+$("#gb").onclick=async()=>{CODE=$("#gc").value.trim();if(!CODE)return;if(await load()){try{sessionStorage.setItem("mlcode",CODE)}catch(e){}$("#gate").style.display="none"}};
+$("#gc").onkeydown=e=>{if(e.key==="Enter")$("#gb").click()};
+
+/* ---------- Ask AI ---------- */
+const STOP=new Set("the and for with what which who how much many does did are was were this that from have has had can you your our per sft rate rates cost price show list tell give about between compare than then into over under all any each most least best worst highest lowest cheapest top quote quoted please need want get paid pay".split(" "));
+const stem=w=>w.length>4&&w.endsWith("s")?w.slice(0,-1):w;
+const toks=t=>[...new Set(String(t).toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w.length>=3&&!STOP.has(w)&&!/^\d+$/.test(w)).map(stem))];
+function retrieve(text){const T=toks(text),res={items:[],people:[],projects:[]};if(!T.length)return res;
+ const sc=D.map(d=>[d,T.filter(w=>d.hay.includes(w)).length]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]||a[0].name.length-b[0].name.length);
+ if(sc.length){const top=sc[0][1];res.items=sc.filter(x=>x[1]>=Math.max(1,top)).slice(0,6).map(x=>x[0])}
+ res.people=PE.filter(p=>T.some(w=>w.length>=4&&p.key.split(" ").some(k=>k===w||k===stem(w)))).slice(0,3);
+ res.projects=projectRows().filter(p=>T.some(w=>w.length>=4&&pk(p.name).includes(w))).slice(0,2);return res}
+const r2=n=>+(+n).toFixed(2);
+function buildContext(text){const R=retrieve(text),L=[],PR=projectRows();
+ L.push("TODAY: "+today());
+ L.push("ITEMS (id|trade|item|unit|entries|low|p25|median|p75|p90|high|latest|forecast):");
+ D.forEach(d=>L.push([d.id,d.cat,d.name,d.unit,d.n,r2(d.min),r2(d.p25),r2(d.med),r2(d.p75),r2(d.p90),r2(d.max),r2(d.last),r2(d.fc)].join("|")));
+ L.push("PROJECTS (name|location|structure|BUA sft|responsible|entries|activities priced|avg vs median):");
+ if(!PR.length)L.push("none recorded yet");PR.forEach(p=>L.push([p.name,p.loc,p.st,p.bua,p.resp,p.n,p.items,p.dv==null?"":pct(p.dv)].join("|")));
+ L.push("CONTRACTORS (name|sites|activities|rate entries|avg vs median|our score of 5|grade|their score of us|reviews|last review):");
+ if(!PE.length)L.push("none recorded yet");PE.forEach(p=>L.push([p.name,[...p.sites].join("; "),p.items,p.n,p.dv==null?"":pct(p.dv),p.ms==null?"":r2(p.ms),p.g?p.g[0]+" "+p.g[1]:"",p.fs==null?"":r2(p.fs),p.rv,p.last].join("|")));
+ const det=[];
+ R.items.forEach(d=>{const withInfo=d.e.some(x=>x.p||x.c);det.push(`ENTRIES FOR ${d.name} (${d.unit}), in order: `+(withInfo?d.e.slice(0,80).map(x=>[x.p,x.b,x.c,r2(x.r),x.d].filter(v=>v!==""&&v!=null).join("/")).join("; "):d.v.map(r2).join(", ")+" (master-list order, no project or contractor names)"))});
+ R.people.forEach(P=>{det.push(`CONTRACTOR ${P.name}: sites ${[...P.sites].join("; ")||"none"}`);P.ents.slice(0,40).forEach(x=>det.push(`  rate ${x.d.name}: ${r2(x.en.r)} ${x.d.unit} (${x.en.p||"no project"}, median ${r2(x.d.med)})`));
+  P.reg.forEach(c=>{const d=DI[c.i];det.push(`  quote ${d?d.name:c.i}: ${r2(c.r)} ${d?d.unit:""} at ${c.s}; payment ${c.p}; retention ${c.t}%; DLP ${c.d} months; delay penalty ${c.l}; notes ${String(c.x).slice(0,160)}`)});
+  const po=params(P.ours,"ours"),pt=params(P.theirs,"theirs");if(po.length)det.push("  our scores by area: "+po.map(x=>x[0]+" "+r2(x[1])).join("; "));if(pt.length)det.push("  their scores of us: "+pt.map(x=>x[0]+" "+r2(x[1])).join("; "));
+  P.fb.slice(-6).forEach(r=>{if(r.comment)det.push(`  ${r.dir==="theirs"?"their":"our"} comment ${r.date||""}: ${String(r.comment).slice(0,200)}`)});if(P.theirs.some(r=>r.again==="No"))det.push("  has said they would NOT work with us again")});
+ R.projects.forEach(P=>{det.push(`PROJECT ${P.name} rates:`);P.ents.slice(0,80).forEach(x=>det.push(`  ${x.d.name}: ${r2(x.en.r)} ${x.d.unit} (${x.en.c||"no contractor"}, median ${r2(x.d.med)})`))});
+ if(det.length)L.push("DETAIL FOR THIS QUESTION:"),L.push(...det);
+ return{text:L.join("\n").slice(0,58000),used:[...R.items.map(d=>d.name),...R.people.map(p=>p.name),...R.projects.map(p=>p.name)]}}
+function md(t){let h="",ul=false;const fm=s=>s.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");esc(t).split("\n").forEach(l=>{const m=l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);if(m){if(!ul){h+="<ul>";ul=true}h+="<li>"+fm(m[1])+"</li>"}else{if(ul){h+="</ul>";ul=false}if(l.trim())h+="<p>"+fm(l)+"</p>"}});return h+(ul?"</ul>":"")}
+function localAnswer(text){const R=retrieve(text);let h="";
+ if(R.items.length)h+=`<div class="tw"><table class="l"><tr><th>Item</th><th>Unit</th><th>Low</th><th>Median</th><th>High</th><th>Latest</th></tr>${R.items.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.unit)}</td><td>${f(d.min)}</td><td>${f(d.med)}</td><td>${f(d.max)}</td><td>${f(d.last)}</td></tr>`).join("")}</table></div>`;
+ R.people.forEach(P=>{h+=`<p><b>${esc(P.name)}</b>${P.g?` · grade ${P.g[0]} (${P.g[1]}), score ${P.ms.toFixed(1)}`:" · no reviews yet"}${P.dv!=null?` · price ${pct(P.dv)} vs median`:""}</p>`});
+ R.projects.forEach(P=>{h+=`<p><b>${esc(P.name)}</b> · ${P.items} activities priced, ${P.n} entries</p>`});
+ return h||"<p>I could not find a matching activity, project or contractor. Try the exact item name, for example “RCC work, building”.</p>"}
+let H=[],asking=false;
+function addMsg(cls,html){const m=document.createElement("div");m.className="msg "+cls;m.innerHTML=html;$("#msgs").appendChild(m);$("#msgs").scrollTop=1e9;return m}
+async function ask(text){text=String(text||"").trim().slice(0,800);if(!text||asking)return;asking=true;$("#csend").disabled=true;$("#cin").value="";addMsg("u",esc(text));const wait=addMsg("a","<p class='m'>Looking through your data…</p>");
+ H.push({role:"user",content:text});const recent=H.filter(x=>x.role==="user").slice(-2).map(x=>x.content).join(" "),ctx=buildContext(recent);
+ try{const r=await fetch(CONFIG.CHAT_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:CODE,messages:H.slice(-6),context:ctx.text})});let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok||!j.ok)throw new Error(j.error||"The AI service is not connected");
+  H.push({role:"assistant",content:j.answer});wait.innerHTML=md(j.answer)+(ctx.used.length?`<div class="src">Used: ${esc(ctx.used.join(", "))}</div>`:"")}
+ catch(e){H.pop();wait.innerHTML=`<p class="m">${esc(e.message)}. Here is what the data shows for your question:</p>`+localAnswer(text)}
+ asking=false;$("#csend").disabled=false;$("#msgs").scrollTop=1e9}
+$("#csend").onclick=()=>ask($("#cin").value);$("#cin").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask($("#cin").value)}};
+function chat0(){addMsg("a","<p>Ask me about rates, contractors, projects or quotes. I answer only from your Google Sheet data.</p>");
+ const S=["What is the usual rate for RCC building work?","Which activities have the widest rate gaps?","Is ₹235 per sft fair for RCC work in the building?","Which contractors are on the watchlist?","Estimate waterproofing cost for 5 lakh sft built-up area"];
+ $("#sug").innerHTML=S.map(s=>`<button class="chip">${esc(s)}</button>`).join("");$$("#sug .chip").forEach(b=>b.onclick=()=>ask(b.textContent))}
+
+/* ---------- start ---------- */
+$("#nav").onclick=e=>{const t=e.target.dataset.t;if(!t)return;$$("nav button,section").forEach(x=>x.classList.remove("on"));e.target.classList.add("on");$("#"+t).classList.add("on")};
+chat0();
+if(!CONFIG.API_URL){MODE="demo";seedState();renderAll()}
+else{try{CODE=sessionStorage.getItem("mlcode")||""}catch(e){}if(CODE)load();else gate("")}
+</script></body></html>
